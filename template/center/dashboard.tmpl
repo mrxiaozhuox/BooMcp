@@ -1,0 +1,19 @@
+{{ define "center/dashboard.tmpl" }} {{ template "block/frame.tmpl" .}}
+
+<div class="mdui-container"> <br />
+
+    <div class="mdui-card">
+        <div class="mdui-card-header">
+            <img class="mdui-card-header-avatar" src="https://www.gravatar.com/avatar/{{.ImageHash}}" />
+            <div class="mdui-card-header-title">尊敬的：{{.Username}}</div>
+            <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 台服务器正在运行中...</div>
+        </div>
+        <div class="mdui-card-actions">
+            <button class="mdui-btn mdui-ripple">action 1</button>
+            <button class="mdui-btn mdui-ripple">action 2</button>
+        </div>
+    </div>
+
+</div>
+
+{{ template "block/end.tmpl" .}} {{ end }}

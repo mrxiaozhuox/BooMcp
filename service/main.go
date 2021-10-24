@@ -24,7 +24,14 @@ func InitServer() {
 	// 尝试加载 template 目录下的所有页面模板文件
 	service.LoadHTMLGlob("template/**/*")
 
-	service.GET("/center/", func(c *gin.Context) {
+	service.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "account/login.tmpl", gin.H{
+			"Title": "FkyOS Server",
+		})
+	})
+
+	// 自动跳转到 Dashboard 主页中
+	service.GET("/center", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/center/dashboard")
 	})
 
@@ -43,7 +50,7 @@ func InitServer() {
 		if page == "dashboard" {
 			// DashBoard 页面操作
 			c.HTML(http.StatusOK, "center/dashboard.tmpl", gin.H{
-				"title":              "FkyOS Server",
+				"Title":              "FkyOS Server",
 				"AcDashboard":        true,
 				"Username":           "mrxiaozhuox",
 				"OnlineServerNumber": 0,

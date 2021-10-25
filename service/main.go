@@ -14,9 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitServer() {
-
-	service := gin.Default()
+func InitServer(service *gin.Engine) {
 
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))

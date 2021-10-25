@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"fkyos.com/mcp/library"
 	"fkyos.com/mcp/service"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
+	r := gin.Default()
+
 	library.InitConfig()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println(os.Getenv("APPDATA"))
-
-	service.InitServer()
-
+	service.InitServer(r)
 }

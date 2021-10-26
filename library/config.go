@@ -3,10 +3,10 @@ package library
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
-	// _ "github.com/mattn/go-sqlite3"
 )
 
 type GeneralConfig struct {
@@ -15,6 +15,7 @@ type GeneralConfig struct {
 	TLS            TLS
 	SiteName       string
 	MCSMConnect    []MCSMConnect
+	MongoDbURI     string
 	RegisterConfig RegisterConfig
 }
 
@@ -37,6 +38,8 @@ type MCSMConnect struct {
 
 func InitConfig() (c GeneralConfig, err error) {
 
+	log.Println("服务器启动中...")
+
 	ex, err := os.Executable()
 	if err != nil {
 		return GeneralConfig{}, nil
@@ -44,11 +47,16 @@ func InitConfig() (c GeneralConfig, err error) {
 
 	exPath := filepath.Dir(ex)
 
-	configPath := path.Join(exPath, "config")
+	// 日志目录检查并创建
+	logPath := path.Join(exPath, "log")
+	if !exists(logPath) {
+		PanicErr(os.MkdirAll(logPath, 0777))
+	}
 
+	configPath := path.Join(exPath, "config")
 	if !exists(configPath) {
 
-		os.MkdirAll(configPath, 0777)
+		PanicErr(os.MkdirAll(configPath, 0777))
 
 		// 加载配置文件
 		general := GeneralConfig{
@@ -59,6 +67,7 @@ func InitConfig() (c GeneralConfig, err error) {
 				KeyFile: "",
 			},
 			MCSMConnect: []MCSMConnect{},
+			MongoDbURI:  "mongodb://localhost:27017",
 			RegisterConfig: RegisterConfig{
 				AllowRegister: true,
 			},
@@ -74,24 +83,29 @@ func InitConfig() (c GeneralConfig, err error) {
 			return GeneralConfig{}, err
 		}
 
-	}
+		log.Println("服务器首次初始化成功！[Successful]")
 
-	logPath := path.Join(exPath, "log")
-	if !exists(logPath) {
-		os.MkdirAll(logPath, 0777)
-	}
+		return general, nil
 
-	dbPath := path.Join(exPath, "db")
-	if !exists(dbPath) {
+	} else {
+		// 文件存在，则自动读取并加载
+		if isFile(path.Join(configPath, "property.json")) {
 
-		os.MkdirAll(dbPath, 0777)
+			file, err := os.Open(path.Join(configPath, "property.json"))
+			PanicErr(err)
+			defer file.Close()
 
-		// 初始化数据库系统
-		// _, err := sql.Open("sqlite3", path.Join(dbPath, "system.db"))
-		// if err != nil {
-		// 	panic(err)
-		// }
+			content, err := ioutil.ReadAll(file)
+			PanicErr(err)
 
+			var tmp GeneralConfig
+			err = json.Unmarshal(content, &tmp)
+			PanicErr(err)
+
+			log.Println("服务器加载配置成功！[Successful]")
+
+			return tmp, nil
+		}
 	}
 
 	return GeneralConfig{}, nil
@@ -118,4 +132,10 @@ func isDir(path string) bool {
 
 func isFile(path string) bool {
 	return !isDir(path)
+}
+
+func PanicErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

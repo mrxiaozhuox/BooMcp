@@ -8,6 +8,7 @@ package service
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 
@@ -93,12 +94,15 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
-		randBytes := make([]byte, 18/2)
+		randBytes := make([]byte, 10/2)
 		rand.Read(randBytes)
 
-		salt := string(randBytes)
+		salt := fmt.Sprintf("%x", randBytes)
 
-		password = fmt.Sprintf("%x", md5.Sum([]byte(password)))
+		h := md5.New()
+		h.Write([]byte(password))
+
+		password = hex.EncodeToString(h.Sum(nil))
 
 		// 初始化的用户信息
 		// status 0 代表用户未在线

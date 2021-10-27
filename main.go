@@ -3,9 +3,11 @@ package main
 import (
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"fkyos.com/mcp/library"
 	"fkyos.com/mcp/service"
@@ -13,6 +15,8 @@ import (
 )
 
 func main() {
+
+	rand.Seed(time.Now().UnixNano())
 
 	ex, err := os.Executable()
 	if err != nil {

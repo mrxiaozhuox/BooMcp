@@ -3,6 +3,7 @@ package library
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -50,12 +51,25 @@ func (db DataBase) Ping() bool {
 func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 	db := mongo.client.Database("fkycmp")
+	collection := db.Collection("Users")
 
-	_, err := db.Collection("Users").InsertOne(context.TODO(), user)
+	// 检查是否已经被注册
+	var temp UserInfo
+	err := collection.FindOne(context.TODO(), bson.D{{"email", user.Email}}).Decode(&temp)
 
 	if err != nil {
-		return false, err
+
+		// 数据没找到，可以插入
+		_, err := collection.InsertOne(context.TODO(), user)
+
+		if err != nil {
+			return false, err
+		}
+
+		return true, nil
 	}
 
-	return true, nil
+	println("已经有啦！")
+
+	return false, nil
 }

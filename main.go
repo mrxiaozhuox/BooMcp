@@ -31,14 +31,14 @@ func main() {
 		panic(err)
 	}
 
-	_, err = library.MongoConnect(config.MongoDbURI)
+	mongo, err := library.MongoConnect(config.MongoDbURI)
 	fatalError(err)
 	log.Println("数据库连接测试成功！[PONG]")
 
 	gin.DefaultWriter = io.MultiWriter(f)
 	r := gin.Default()
 
-	service.InitServer(r)
+	service.InitServer(r, mongo)
 }
 
 func fatalError(err error) {

@@ -8,13 +8,14 @@ package service
 import (
 	"net/http"
 
+	"fkyos.com/mcp/library"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitServer(service *gin.Engine) {
+func InitServer(service *gin.Engine, mongo *library.DataBase) {
 
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))

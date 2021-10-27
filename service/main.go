@@ -6,6 +6,9 @@
 package service
 
 import (
+	"crypto/md5"
+	"crypto/rand"
+	"fmt"
 	"net/http"
 
 	"fkyos.com/mcp/library"
@@ -27,6 +30,17 @@ func InitServer(service *gin.Engine, mongo *library.DataBase) {
 		c.HTML(http.StatusOK, "account/login.tmpl", gin.H{
 			"Title": "FkyOS Server",
 		})
+	})
+
+	service.GET("/register", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "account/register.tmpl", gin.H{
+			"Title": "FkyOS Server",
+		})
+	})
+
+	// Api 接口函数定义
+	service.POST("/api/:operation", func(c *gin.Context) {
+		apiService(c, mongo)
 	})
 
 	// 自动跳转到 Dashboard 主页中
@@ -59,4 +73,54 @@ func InitServer(service *gin.Engine, mongo *library.DataBase) {
 	})
 
 	service.Run()
+}
+
+func apiService(c *gin.Context, mongo *library.DataBase) {
+
+	operation := c.Param("operation")
+
+	if operation == "register" {
+
+		// 检查必填属性是否存在
+		username := c.PostForm("username")
+		email := c.PostForm("email")
+		password := c.PostForm("password")
+
+		if username == "" || email == "" || password == "" {
+			c.JSON(400, gin.H{
+				"error": "缺少必须参数",
+			})
+			return
+		}
+
+		randBytes := make([]byte, 18/2)
+		rand.Read(randBytes)
+
+		salt := string(randBytes)
+
+		password = fmt.Sprintf("%x", md5.Sum([]byte(password)))
+
+		// 初始化的用户信息
+		// status 0 代表用户未在线
+		// level  0 代表用户未激活
+		user := library.UserInfo{
+			Username: username,
+			Password: password,
+			Salt:     salt,
+			Email:    email,
+			Sex:      2,
+			About:    "",
+			Status:   0,
+			Level:    0,
+		}
+
+		_, err := mongo.Register(user)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
+
 }

@@ -31,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	mongo, err := library.MongoConnect(config.MongoDbURI)
+	mongo, err := library.MongoConnect(config)
 	fatalError(err)
 	log.Println("数据库连接测试成功！[PONG]")
 

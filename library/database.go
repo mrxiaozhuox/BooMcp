@@ -61,15 +61,18 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 		// 数据没找到，可以插入
 		_, err := collection.InsertOne(context.TODO(), user)
-
 		if err != nil {
 			return false, err
 		}
 
+		// 插入账号待验证信息
+		if mongo.config.EmailConfig.Server != "" {
+			// 不为空则说明配置了邮箱系统信息
+			// 自动检测是否支持
+		}
+
 		return true, nil
 	}
-
-	println("已经有啦！")
 
 	return false, nil
 }

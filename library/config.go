@@ -17,6 +17,7 @@ type GeneralConfig struct {
 	MCSMConnect    []MCSMConnect
 	MongoDbURI     string
 	RegisterConfig RegisterConfig
+	EmailConfig    EmailConfig
 }
 
 type TLS struct {
@@ -26,6 +27,13 @@ type TLS struct {
 
 type RegisterConfig struct {
 	AllowRegister bool
+}
+
+type EmailConfig struct {
+	Server   string
+	Port     int
+	Username string
+	Password string
 }
 
 type MCSMConnect struct {

@@ -2,15 +2,21 @@ package library
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
 
+	"github.com/gobuffalo/packr"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/gomail.v2"
 )
 
 type DataBase struct {
 	client *mongo.Client
 	config GeneralConfig
+	packer packr.Box
 }
 
 type UserInfo struct {
@@ -24,7 +30,7 @@ type UserInfo struct {
 	Level    int
 }
 
-func MongoConnect(config GeneralConfig) (*DataBase, error) {
+func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MongoDbURI))
 	if err != nil {
@@ -69,6 +75,19 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		if mongo.config.EmailConfig.Server != "" {
 			// 不为空则说明配置了邮箱系统信息
 			// 自动检测是否支持
+
+			mail := gomail.NewMessage()
+
+			mail.SetHeader("From", mongo.config.EmailConfig.Username)
+			mail.SetHeader("To", user.Email)
+			mail.SetHeader("Subject", "账号邮箱验证「 "+mongo.config.SiteName+" 」")
+
+			status, err := SendEmail(mongo.config.EmailConfig, mongo.packer.FindString("check-email"), mail)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(0)
+			}
+			log.Println(status)
 		}
 
 		return true, nil

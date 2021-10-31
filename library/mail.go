@@ -8,7 +8,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func SendEmail(conf EmailConfig, tmpl string) (bool, error) {
+func SendEmail(conf EmailConfig, tmpl string, message *gomail.Message) (bool, error) {
 
 	dia := gomail.NewDialer(conf.Server, conf.Port, conf.Username, conf.Password)
 
@@ -31,4 +31,9 @@ func SendEmail(conf EmailConfig, tmpl string) (bool, error) {
 		return false, err
 	}
 
+	if err := dia.DialAndSend(message); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

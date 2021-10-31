@@ -12,6 +12,7 @@ import (
 	"fkyos.com/mcp/library"
 	"fkyos.com/mcp/service"
 	"github.com/gin-gonic/gin"
+	"github.com/gobuffalo/packr"
 )
 
 func main() {
@@ -30,12 +31,14 @@ func main() {
 		os.Exit(0)
 	}
 
+	pack := packr.NewBox("./template")
+
 	f, err := os.Create(path.Join(rootPath, "log", "service.log"))
 	if err != nil {
 		panic(err)
 	}
 
-	mongo, err := library.MongoConnect(config)
+	mongo, err := library.MongoConnect(config, pack)
 	fatalError(err)
 	log.Println("数据库连接测试成功！[PONG]")
 

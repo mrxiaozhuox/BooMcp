@@ -2,9 +2,6 @@ package library
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"os"
 
 	"github.com/gobuffalo/packr"
 	"go.mongodb.org/mongo-driver/bson"
@@ -82,12 +79,12 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			mail.SetHeader("To", user.Email)
 			mail.SetHeader("Subject", "账号邮箱验证「 "+mongo.config.SiteName+" 」")
 
-			status, err := SendEmail(mongo.config.EmailConfig, mongo.packer.FindString("check-email"), mail)
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(0)
-			}
-			log.Println(status)
+			// status, err := SendEmail(mongo.config.EmailConfig, mongo.packer.FindString("check-email"), mail)
+			// if err != nil {
+			// 	fmt.Println(err.Error())
+			// 	os.Exit(0)
+			// }
+			// log.Println(status)
 		}
 
 		return true, nil

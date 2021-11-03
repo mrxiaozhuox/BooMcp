@@ -91,6 +91,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			mail.SetHeader("To", user.Email)
 			mail.SetHeader("Subject", "账号邮箱验证「 "+mongo.config.SiteName+" 」")
 
+			// 加载相应的数据模板文件
 			templ, err := mongo.packer.FindString("email/check-email.tmpl")
 			if err != nil {
 				fmt.Println("Email发送模板不存在。")

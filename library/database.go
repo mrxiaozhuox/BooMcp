@@ -13,7 +13,6 @@ import (
 type DataBase struct {
 	client *mongo.Client
 	config GeneralConfig
-	packer packr.Box
 }
 
 type UserInfo struct {
@@ -58,7 +57,14 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 	// 检查是否已经被注册
 	var temp UserInfo
-	err := collection.FindOne(context.TODO(), bson.D{{"email", user.Email}}).Decode(&temp)
+	err := collection.FindOne(
+		context.TODO(),
+		bson.D{
+			{
+				"email", user.Email,
+			},
+		},
+	).Decode(&temp)
 
 	if err != nil {
 

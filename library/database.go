@@ -2,6 +2,9 @@ package library
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
 
 	"github.com/gobuffalo/packr"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +16,7 @@ import (
 type DataBase struct {
 	client *mongo.Client
 	config GeneralConfig
+	packer packr.Box
 }
 
 type UserInfo struct {
@@ -41,6 +45,7 @@ func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
 	return &DataBase{
 		client: client,
 		config: config,
+		packer: pack,
 	}, nil
 }
 
@@ -61,7 +66,8 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		context.TODO(),
 		bson.D{
 			{
-				"email", user.Email,
+				Key:   "email",
+				Value: user.Email,
 			},
 		},
 	).Decode(&temp)
@@ -85,12 +91,19 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			mail.SetHeader("To", user.Email)
 			mail.SetHeader("Subject", "账号邮箱验证「 "+mongo.config.SiteName+" 」")
 
-			// status, err := SendEmail(mongo.config.EmailConfig, mongo.packer.FindString("check-email"), mail)
-			// if err != nil {
-			// 	fmt.Println(err.Error())
-			// 	os.Exit(0)
-			// }
-			// log.Println(status)
+			templ, err := mongo.packer.FindString("email/check-email.tmpl")
+			if err != nil {
+				fmt.Println("Email发送模板不存在。")
+			}
+
+			mail.SetBody("text/html", templ)
+
+			status, err := SendEmail(mongo.config.EmailConfig, mail)
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(0)
+			}
+			log.Println(status)
 		}
 
 		return true, nil

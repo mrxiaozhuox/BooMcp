@@ -11,6 +11,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"fkyos.com/mcp/library"
 	"github.com/gin-contrib/sessions"
@@ -19,7 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitServer(service *gin.Engine, mongo *library.DataBase) {
+func InitServer(service *gin.Engine, mongo *library.DataBase, config library.GeneralConfig) {
 
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
@@ -73,7 +74,7 @@ func InitServer(service *gin.Engine, mongo *library.DataBase) {
 		}
 	})
 
-	service.Run()
+	service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
 }
 
 func apiService(c *gin.Context, mongo *library.DataBase) {

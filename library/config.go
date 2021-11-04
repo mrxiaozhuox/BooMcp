@@ -7,12 +7,14 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 )
 
 type GeneralConfig struct {
 	Hostname       string
 	Port           int
 	TLS            TLS
+	Domain         string
 	SiteName       string
 	MCSMConnect    []MCSMConnect
 	MongoDbURI     string
@@ -79,6 +81,7 @@ func InitConfig() (c GeneralConfig, err error) {
 			RegisterConfig: RegisterConfig{
 				AllowRegister: true,
 			},
+			SiteName: "FkyCMP",
 		}
 
 		jsons, err := json.MarshalIndent(general, "", "    ")
@@ -110,7 +113,25 @@ func InitConfig() (c GeneralConfig, err error) {
 			err = json.Unmarshal(content, &tmp)
 			PanicErr(err)
 
+			if tmp.Domain == "" {
+				// 如果域名为空，则自动生成 IP + 端口 路径
+
+				protocol := "https"
+				if (tmp.TLS == TLS{}) {
+					protocol = "http"
+				}
+
+				host := tmp.Hostname
+				if tmp.Hostname == "0.0.0.0" {
+					host = "127.0.0.1"
+				}
+
+				url := protocol + "://" + host + ":" + strconv.Itoa(tmp.Port)
+				tmp.Domain = url
+			}
+
 			log.Println("服务器加载配置成功！[Successful]")
+			log.Println("服务器运行地址：" + tmp.Domain)
 
 			return tmp, nil
 		}

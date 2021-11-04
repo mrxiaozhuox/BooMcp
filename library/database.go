@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gobuffalo/packr"
 	"go.mongodb.org/mongo-driver/bson"
@@ -96,6 +97,10 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			if err != nil {
 				fmt.Println("Email发送模板不存在。")
 			}
+
+			templ = strings.ReplaceAll(templ, "{site}", mongo.config.SiteName)
+			templ = strings.ReplaceAll(templ, "{type}", "register")
+			templ = strings.ReplaceAll(templ, "{domain}", "")
 
 			mail.SetBody("text/html", templ)
 

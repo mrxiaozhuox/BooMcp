@@ -45,7 +45,7 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(f)
 	r := gin.Default()
 
-	service.InitServer(r, mongo)
+	service.InitServer(r, mongo, config)
 }
 
 func fatalError(err error) {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -32,6 +31,12 @@ type UserInfo struct {
 	Level    int
 }
 
+type tokenStruct struct {
+	token     string
+	target    interface{}
+	operation string
+}
+
 func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MongoDbURI))
@@ -56,10 +61,26 @@ func (db DataBase) Ping() bool {
 	return err == nil
 }
 
+func (mongo DataBase) SaveToken(token string, uid interface{}, operation string) (bool, error) {
+
+	db := mongo.client.Database("fkycmp")
+
+	collection := db.Collection("Tokens")
+
+	collection.InsertOne(context.TODO(), tokenStruct{
+		token:     token,
+		target:    uid,
+		operation: operation,
+	})
+
+	return true, nil
+}
+
 // 用户注册命令
 func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 	db := mongo.client.Database("fkycmp")
+
 	collection := db.Collection("Users")
 
 	// 检查是否已经被注册
@@ -103,8 +124,6 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			templ = strings.ReplaceAll(templ, "{domain}", mongo.config.Domain)
 			templ = strings.ReplaceAll(templ, "{token}", token)
 
-			log.Println(token)
-
 			mail.SetBody("text/html", templ)
 
 			status, err := SendEmail(mongo.config.EmailConfig, mail)
@@ -114,17 +133,30 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			}
 
 			if status {
-				// 发送成功则保存token以作为后续的验证
+				// 新信息可以插入
+				res, err := collection.InsertOne(context.TODO(), user)
+				if err != nil {
+					return false, errors.New("数据插入失败")
+				}
+
+				_, err = mongo.SaveToken(token, res.InsertedID, "register")
+				if err != nil {
+					fmt.Println("Token 保存失败：" + token)
+					os.Exit(0)
+				}
+
+				return true, nil
 			}
-		}
 
-		// 数据没找到，可以插入
-		_, err := collection.InsertOne(context.TODO(), user)
-		if err != nil {
-			return false, errors.New("数据插入失败")
-		}
+		} else {
+			// 不需要验证，直接插入
+			_, err := collection.InsertOne(context.TODO(), user)
+			if err != nil {
+				return false, errors.New("数据插入失败")
+			}
 
-		return true, nil
+			return true, nil
+		}
 	}
 
 	return false, errors.New("相关数据账号已被注册")

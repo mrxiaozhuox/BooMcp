@@ -2,6 +2,7 @@ package library
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -75,12 +76,6 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 	if err != nil {
 
-		// 数据没找到，可以插入
-		_, err := collection.InsertOne(context.TODO(), user)
-		if err != nil {
-			return false, err
-		}
-
 		// 插入账号待验证信息
 		if mongo.config.EmailConfig.Server != "" {
 			// 不为空则说明配置了邮箱系统信息
@@ -95,12 +90,20 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			// 加载相应的数据模板文件
 			templ, err := mongo.packer.FindString("email/check-email.tmpl")
 			if err != nil {
+				// 这种错误存在就会不断触发，所以干脆直接崩掉程序
 				fmt.Println("Email发送模板不存在。")
+				os.Exit(0)
 			}
+
+			token := RandStringBytesRmndr(25)
 
 			templ = strings.ReplaceAll(templ, "{site}", mongo.config.SiteName)
 			templ = strings.ReplaceAll(templ, "{type}", "register")
-			templ = strings.ReplaceAll(templ, "{domain}", "")
+			templ = strings.ReplaceAll(templ, "{function}", "注册")
+			templ = strings.ReplaceAll(templ, "{domain}", mongo.config.Domain)
+			templ = strings.ReplaceAll(templ, "{token}", token)
+
+			log.Println(token)
 
 			mail.SetBody("text/html", templ)
 
@@ -109,11 +112,20 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 				fmt.Println(err.Error())
 				os.Exit(0)
 			}
-			log.Println(status)
+
+			if status {
+				// 发送成功则保存token以作为后续的验证
+			}
+		}
+
+		// 数据没找到，可以插入
+		_, err := collection.InsertOne(context.TODO(), user)
+		if err != nil {
+			return false, errors.New("数据插入失败")
 		}
 
 		return true, nil
 	}
 
-	return false, nil
+	return false, errors.New("相关数据账号已被注册")
 }

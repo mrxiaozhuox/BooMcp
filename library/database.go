@@ -63,6 +63,8 @@ func (db DataBase) Ping() bool {
 
 func (mongo DataBase) SaveToken(token string, uid interface{}, operation string) (bool, error) {
 
+	// 保存 Token 到 Mongodb 数据库
+
 	db := mongo.client.Database("fkycmp")
 
 	collection := db.Collection("Tokens")

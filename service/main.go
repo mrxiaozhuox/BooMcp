@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -45,6 +46,27 @@ func InitServer(service *gin.Engine, mongo *library.DataBase, config library.Gen
 		apiService(c, mongo)
 	})
 
+	service.GET("/auth", func(c *gin.Context) {
+		authType := c.DefaultQuery("type", "register")
+		authToken := c.DefaultQuery("token", "")
+
+		if authToken == "" {
+			c.JSON(401, gin.H{
+				"error": "未知的Token",
+			})
+		}
+
+		oid, err := mongo.CheckToken(authToken, authType)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": "Token不存在",
+			})
+			return
+		}
+
+		fmt.Println(oid)
+	})
+
 	// 自动跳转到 Dashboard 主页中
 	service.GET("/center", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/center/dashboard")
@@ -74,7 +96,10 @@ func InitServer(service *gin.Engine, mongo *library.DataBase, config library.Gen
 		}
 	})
 
-	service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
+	err := service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func apiService(c *gin.Context, mongo *library.DataBase) {

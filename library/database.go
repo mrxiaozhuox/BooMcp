@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"os"
 	"strings"
 
@@ -13,6 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/gomail.v2"
 )
+
+const DATABASENAME string = "fkycmp"
 
 type DataBase struct {
 	client *mongo.Client
@@ -31,10 +34,10 @@ type UserInfo struct {
 	Level    int
 }
 
-type tokenStruct struct {
-	token     string
-	target    interface{}
-	operation string
+type TokenStruct struct {
+	Token     string
+	Target    interface{}
+	Operation string
 }
 
 func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
@@ -56,22 +59,48 @@ func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
 	}, nil
 }
 
-func (db DataBase) Ping() bool {
-	err := db.client.Ping(context.TODO(), nil)
+func (mongo DataBase) Ping() bool {
+	err := mongo.client.Ping(context.TODO(), nil)
 	return err == nil
 }
 
-// 保存 Token 到 Mongodb 数据库
+func (mongo DataBase) CheckToken(token string, operation string) (interface{}, error) {
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("Token")
+
+	var temp TokenStruct
+	err := collection.FindOne(
+		context.TODO(),
+		bson.D{
+			{
+				Key:   "token",
+				Value: token,
+			},
+			{
+				Key:   "operation",
+				Value: operation,
+			},
+		},
+	).Decode(&temp)
+
+	if err != nil {
+		return nil, errors.New("数据不存在")
+	}
+
+	// 读取成功，返回 Target ObjectID
+	return temp.Target, nil
+}
+
 func (mongo DataBase) SaveToken(token string, uid interface{}, operation string) (bool, error) {
 
-	db := mongo.client.Database("fkycmp")
+	db := mongo.client.Database(DATABASENAME)
 
-	collection := db.Collection("Tokens")
+	collection := db.Collection("Token")
 
-	tokenValue := tokenStruct{
-		token:     token,
-		target:    "uid",
-		operation: operation,
+	tokenValue := TokenStruct{
+		Token:     token,
+		Target:    uid,
+		Operation: operation,
 	}
 
 	_, err := collection.InsertOne(context.TODO(), tokenValue)
@@ -83,10 +112,9 @@ func (mongo DataBase) SaveToken(token string, uid interface{}, operation string)
 	return true, nil
 }
 
-// 用户注册命令
 func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
-	db := mongo.client.Database("fkycmp")
+	db := mongo.client.Database(DATABASENAME)
 
 	collection := db.Collection("Users")
 
@@ -167,4 +195,11 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 	}
 
 	return false, errors.New("相关数据账号已被注册")
+}
+
+func getObjectID(result *mongo.InsertOneResult) string {
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		return oid.Hex()
+	}
+	return ""
 }

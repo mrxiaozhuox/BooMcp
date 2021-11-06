@@ -61,19 +61,22 @@ func (db DataBase) Ping() bool {
 	return err == nil
 }
 
+// 保存 Token 到 Mongodb 数据库
 func (mongo DataBase) SaveToken(token string, uid interface{}, operation string) (bool, error) {
-
-	// 保存 Token 到 Mongodb 数据库
 
 	db := mongo.client.Database("fkycmp")
 
 	collection := db.Collection("Tokens")
 
-	collection.InsertOne(context.TODO(), tokenStruct{
+	_, err := collection.InsertOne(context.TODO(), tokenStruct{
 		token:     token,
 		target:    uid,
 		operation: operation,
 	})
+
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }

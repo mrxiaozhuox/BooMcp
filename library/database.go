@@ -68,11 +68,13 @@ func (mongo DataBase) SaveToken(token string, uid interface{}, operation string)
 
 	collection := db.Collection("Tokens")
 
-	_, err := collection.InsertOne(context.TODO(), tokenStruct{
+	tokenValue := tokenStruct{
 		token:     token,
-		target:    uid,
+		target:    "uid",
 		operation: operation,
-	})
+	}
+
+	_, err := collection.InsertOne(context.TODO(), tokenValue)
 
 	if err != nil {
 		return false, err

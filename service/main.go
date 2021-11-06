@@ -96,7 +96,13 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		}
 
 		randBytes := make([]byte, 10/2)
-		rand.Read(randBytes)
+		_, err := rand.Read(randBytes)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "系统运行错误",
+			})
+			return
+		}
 
 		salt := fmt.Sprintf("%x", randBytes)
 
@@ -119,13 +125,18 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			Level:    0,
 		}
 
-		_, err := mongo.Register(user)
+		_, err = mongo.Register(user)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err.Error(),
 			})
 			return
+		} else {
+			c.JSON(200, gin.H{
+				"status": "successful",
+			})
 		}
+
 	}
 
 }

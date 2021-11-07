@@ -6,9 +6,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"os"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gobuffalo/packr"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,7 +18,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-const DATABASENAME string = "fkycmp"
+const DATABASENAME string = "fkymcp"
 
 type DataBase struct {
 	client *mongo.Client
@@ -225,7 +226,7 @@ func (mongo DataBase) Login(email string, password string) (UserInfo, error) {
 	var user UserInfo
 	err := collection.FindOne(context.TODO(), bson.D{
 		{
-			Key: "email",
+			Key:   "email",
 			Value: email,
 		},
 	}).Decode(&user)

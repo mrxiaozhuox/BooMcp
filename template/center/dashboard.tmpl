@@ -6,7 +6,7 @@
         <div class="mdui-card-header">
             <img class="mdui-card-header-avatar" src="https://www.gravatar.com/avatar/{{.ImageHash}}" />
             <div class="mdui-card-header-title">{{.Username}} </div>
-            <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 台服务器正在运行中...</div>
+            <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 个服务正在运行！</div>
         </div>
         <div class="mdui-card-actions">
             <button class="mdui-btn mdui-ripple">购置服务</button>
@@ -16,7 +16,9 @@
     </div><br/>
 
     <div class="mdui-card">
-        <div class="mdui-card-content" id="hitokoto"></div>
+        <div class="mdui-card-content" id="hitokoto">
+            <!-- 「YuKun-Liu」：好文即将赶来！ -->
+        </div>
         <script>
             $.ajax({
                 method: "get",

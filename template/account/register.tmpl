@@ -26,15 +26,15 @@
 
                 <div class="mdui-textfield mdui-textfield-floating-label">
                     <label class="mdui-textfield-label">用户名称</label>
-                    <input class="mdui-textfield-input" type="text" />
+                    <input class="mdui-textfield-input" type="text" id="username" />
                 </div>
                 <div class="mdui-textfield mdui-textfield-floating-label">
                     <label class="mdui-textfield-label">用户邮箱</label>
-                    <input class="mdui-textfield-input" type="email" />
+                    <input class="mdui-textfield-input" type="email" id="email" />
                 </div>
                 <div class="mdui-textfield mdui-textfield-floating-label">
                     <label class="mdui-textfield-label">用户密码</label>
-                    <input class="mdui-textfield-input" type="password" />
+                    <input class="mdui-textfield-input" type="password" id="password" />
                 </div>
 
                 <div style="float: right;">
@@ -64,7 +64,31 @@
         console.log("这是一个前端UI废物做的页面qwq - mrxzx.info")
 
         $("#sign-up").click(function() {
-            alert(1)
+
+
+            let email = $("#email").val()
+            let username = $("#username").val()
+            let password = $("#password").val()
+
+            if (email == "" || username == "" || password == "") {
+                return;
+            }
+
+            $.ajax({
+                method: "POST",
+                url: "/api/register",
+                data: {
+                    username: username,
+                    email: email,
+                    password: password,
+                },
+                success: function(data, status) {
+                    mdui.alert("账号注册成功！", "注册")
+                },
+                error: function(xhr, status, error) {
+                    mdui.alert("账号注册失败：" + error)
+                }
+            })
         })
     </script>
 

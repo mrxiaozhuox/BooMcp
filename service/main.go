@@ -110,7 +110,6 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		page := c.Param("page")
 
 		session := sessions.Default(c)
-		log.Println(session.Get("username"))
 
 		// 查询不到用户的登陆信息，跳转到登陆页面
 		if session.Get("username") == nil {

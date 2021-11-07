@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type GeneralConfig struct {
@@ -81,7 +83,7 @@ func InitConfig() (c GeneralConfig, err error) {
 			RegisterConfig: RegisterConfig{
 				AllowRegister: true,
 			},
-			SiteName: "FkyCMP",
+			SiteName: "FkyMCP",
 		}
 
 		jsons, err := json.MarshalIndent(general, "", "    ")
@@ -123,7 +125,8 @@ func InitConfig() (c GeneralConfig, err error) {
 
 				host := tmp.Hostname
 				if tmp.Hostname == "0.0.0.0" {
-					host = "127.0.0.1"
+					host = GetInternalIP()
+					log.Println("服务将运行于内网IP：0.0.0.0 [Internal]")
 				}
 
 				url := protocol + "://" + host + ":" + strconv.Itoa(tmp.Port)
@@ -167,4 +170,18 @@ func PanicErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetInternalIP() string {
+	// 思路来自于Python版本的内网IP获取，其他版本不准确
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return ""
+	}
+	defer conn.Close()
+
+	// udp 面向无连接，所以这些东西只在你本地捣鼓
+	res := conn.LocalAddr().String()
+	res = strings.Split(res, ":")[0]
+	return res
 }

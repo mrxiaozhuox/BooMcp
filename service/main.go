@@ -31,13 +31,13 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 
 	service.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "account/login.tmpl", gin.H{
-			"Title": "FkyOS Server",
+			"Title": db.Title(),
 		})
 	})
 
 	service.GET("/register", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "account/register.tmpl", gin.H{
-			"Title": "FkyOS Server",
+			"Title": db.Title(),
 		})
 	})
 
@@ -102,7 +102,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 
 	// 自动跳转到 Dashboard 主页中
 	service.GET("/center", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/center/dashboard")
+		c.Redirect(302, "/center/dashboard")
 	})
 
 	service.GET("/center/:page", func(c *gin.Context) {
@@ -110,19 +110,30 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		page := c.Param("page")
 
 		session := sessions.Default(c)
+		log.Println(session.Get("username"))
 
 		// 查询不到用户的登陆信息，跳转到登陆页面
-		if session.Get("UserID") == nil {
-			c.Redirect(http.StatusMovedPermanently, "/login")
+		if session.Get("username") == nil {
+			c.Redirect(302, "/login")
 			return
 		}
 
+		email := session.Get("email")
+
+		// 生成 Image Hash 值
+		h := md5.New()
+		h.Write([]byte(email.(string)))
+		imageHash := hex.EncodeToString(h.Sum(nil))
+
 		if page == "dashboard" {
+
 			// DashBoard 页面操作
+
 			c.HTML(http.StatusOK, "center/dashboard.tmpl", gin.H{
-				"Title":              "FkyOS Server",
+				"Title":              db.Title(),
 				"AcDashboard":        true,
-				"Username":           "mrxiaozhuox",
+				"Username":           session.Get("username"),
+				"ImageHash":          imageHash,
 				"OnlineServerNumber": 0,
 			})
 			return
@@ -138,6 +149,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 func apiService(c *gin.Context, mongo *library.DataBase) {
 
 	operation := c.Param("operation")
+	session := sessions.Default(c)
 
 	if operation == "register" {
 
@@ -191,14 +203,43 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		} else {
 			c.JSON(200, gin.H{
-				"status": "successful",
+				"status": "成功",
 			})
 		}
 
 	} else if operation == "login" {
-
 		// 登录操作
 
-	}
+		email := c.PostForm("email")
+		password := c.PostForm("password")
 
+		if email == "" || password == "" {
+			c.JSON(400, gin.H{
+				"error": "缺少必须参数",
+			})
+			return
+		}
+
+		user, err := mongo.Login(email, password)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": "用户登录失败",
+			})
+			return
+		}
+
+		session.Set("username", user.Username)
+		session.Set("email", user.Email)
+		err = session.Save()
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": "用户登录失败",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
+	}
 }

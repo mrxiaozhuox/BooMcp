@@ -2,6 +2,8 @@ package library
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -215,6 +217,32 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 	return false, errors.New("相关数据账号已被注册")
 }
 
+func (mongo DataBase) Login(email string, password string) (UserInfo, error) {
+
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("Users")
+
+	var user UserInfo
+	err := collection.FindOne(context.TODO(), bson.D{
+		{
+			Key: "email",
+			Value: email,
+		},
+	}).Decode(&user)
+
+	if err != nil {
+		return UserInfo{}, errors.New("用户信息不存在")
+	}
+
+	metaPassword := MetaPassword(password, user.Salt)
+	if metaPassword == user.Password {
+		// 密码正确
+		return user, nil
+	}
+
+	return UserInfo{}, errors.New("用户密码不正确")
+}
+
 func (mongo DataBase) AccountLevel(to int, id string) error {
 
 	// 状态码
@@ -263,4 +291,10 @@ func GetObjectID(result interface{}) string {
 		return oid.Hex()
 	}
 	return ""
+}
+
+func MetaPassword(password string, salt string) string {
+	h := md5.New()
+	h.Write([]byte(password))
+	return hex.EncodeToString(h.Sum(nil))
 }

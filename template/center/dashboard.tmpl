@@ -5,13 +5,28 @@
     <div class="mdui-card">
         <div class="mdui-card-header">
             <img class="mdui-card-header-avatar" src="https://www.gravatar.com/avatar/{{.ImageHash}}" />
-            <div class="mdui-card-header-title">尊敬的：{{.Username}}</div>
+            <div class="mdui-card-header-title">{{.Username}} </div>
             <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 台服务器正在运行中...</div>
         </div>
         <div class="mdui-card-actions">
-            <button class="mdui-btn mdui-ripple">action 1</button>
-            <button class="mdui-btn mdui-ripple">action 2</button>
+            <button class="mdui-btn mdui-ripple">购置服务</button>
+            <button class="mdui-btn mdui-ripple">在线客服</button>
+            <button class="mdui-btn mdui-ripple">账号登出</button>
         </div>
+    </div><br/>
+
+    <div class="mdui-card">
+        <div class="mdui-card-content" id="hitokoto"></div>
+        <script>
+            $.ajax({
+                method: "get",
+                dataType: "json",
+                url: "https://v1.hitokoto.cn/?c=i",
+                success: function(data) {
+                    $("#hitokoto").text("「" + data.from + "」：" + data.hitokoto)
+                }
+            })
+        </script>
     </div>
 
 </div>

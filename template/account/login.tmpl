@@ -26,11 +26,11 @@
 
                 <div class="mdui-textfield mdui-textfield-floating-label">
                     <label class="mdui-textfield-label">用户邮箱</label>
-                    <input class="mdui-textfield-input" type="email" />
+                    <input class="mdui-textfield-input" type="email" id="email" />
                 </div>
                 <div class="mdui-textfield mdui-textfield-floating-label">
                     <label class="mdui-textfield-label">用户密码</label>
-                    <input class="mdui-textfield-input" type="password" />
+                    <input class="mdui-textfield-input" type="password" id="password" />
                 </div>
 
                 <div style="float: right;">
@@ -58,6 +58,35 @@
 
     <script>
         console.log("这是一个前端UI废物做的页面qwq - mrxzx.info")
+
+        $("#sign-in").click(function() {
+
+            let email = $("#email").val()
+            let password = $("#password").val()
+
+            if (email === "" || password === "") {
+                return;
+            }
+
+            $.ajax("/api/login",{
+                type: "POST",
+                data: {
+                    email: email,
+                    password: password,
+                },
+                success: function(res, status) {
+                    mdui.alert("登录成功，将在几秒后自动跳转到个人主页！","登录")
+                    setTimeout(function (){
+                        window.location = "/center/?from=login"
+                    }, 2000)
+                },
+                error: function() {
+                    mdui.alert("登录失败，请检查用户信息后重试。","登录")
+                }
+            })
+
+        })
+
     </script>
 
 </body>

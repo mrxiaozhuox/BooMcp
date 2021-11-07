@@ -124,6 +124,19 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		h.Write([]byte(email.(string)))
 		imageHash := hex.EncodeToString(h.Sum(nil))
 
+		// 获取用户具体信息
+		user, err := db.GetUser(email.(string))
+		if err != nil {
+
+			// 删除用户登录信息
+			session.Delete("username")
+			session.Delete("email")
+			session.Save()
+
+			c.Redirect(302, "/login")
+			return
+		}
+
 		if page == "dashboard" {
 
 			// DashBoard 页面操作
@@ -134,6 +147,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 				"Username":           session.Get("username"),
 				"ImageHash":          imageHash,
 				"OnlineServerNumber": 0,
+				"IsAdmin":            user.Level >= 2,
 			})
 			return
 		}
@@ -194,7 +208,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			Level:    0,
 		}
 
-		_, err = mongo.Register(user)
+		needVerify, err := mongo.Register(user)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err.Error(),
@@ -203,7 +217,9 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		} else {
 			c.JSON(200, gin.H{
 				"status": "成功",
+				"verify": needVerify,
 			})
+			return
 		}
 
 	} else if operation == "login" {
@@ -240,5 +256,6 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		c.JSON(200, gin.H{
 			"status": "成功",
 		})
+		return
 	}
 }

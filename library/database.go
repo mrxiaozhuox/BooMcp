@@ -199,6 +199,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 					os.Exit(0)
 				}
 
+				// 这里的 True 代表开启了 Verify
 				return true, nil
 			}
 
@@ -211,7 +212,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 				return false, errors.New("数据插入失败")
 			}
 
-			return true, nil
+			return false, nil
 		}
 	}
 
@@ -219,6 +220,23 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 }
 
 func (mongo DataBase) Login(email string, password string) (UserInfo, error) {
+
+	user, err := mongo.GetUser(email)
+	if err != nil {
+		return user, errors.New("用户信息不存在")
+	}
+
+	metaPassword := MetaPassword(password, user.Salt)
+	if metaPassword == user.Password {
+		// 密码正确
+		return user, nil
+	}
+
+	return UserInfo{}, errors.New("用户密码不正确")
+}
+
+// 这个函数用于用户检查
+func (mongo DataBase) GetUser(email string) (UserInfo, error) {
 
 	db := mongo.client.Database(DATABASENAME)
 	collection := db.Collection("Users")
@@ -231,17 +249,7 @@ func (mongo DataBase) Login(email string, password string) (UserInfo, error) {
 		},
 	}).Decode(&user)
 
-	if err != nil {
-		return UserInfo{}, errors.New("用户信息不存在")
-	}
-
-	metaPassword := MetaPassword(password, user.Salt)
-	if metaPassword == user.Password {
-		// 密码正确
-		return user, nil
-	}
-
-	return UserInfo{}, errors.New("用户密码不正确")
+	return user, err
 }
 
 func (mongo DataBase) AccountLevel(to int, id string) error {

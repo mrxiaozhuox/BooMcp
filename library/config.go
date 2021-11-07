@@ -13,24 +13,19 @@ import (
 )
 
 type GeneralConfig struct {
-	Hostname       string
-	Port           int
-	TLS            TLS
-	Domain         string
-	SiteName       string
-	MCSMConnect    []MCSMConnect
-	MongoDbURI     string
-	RegisterConfig RegisterConfig
-	EmailConfig    EmailConfig
+	Hostname    string
+	Port        int
+	TLS         TLS
+	Domain      string
+	SiteName    string
+	MCSMConnect []MCSMConnect
+	MongoDbURI  string
+	EmailConfig EmailConfig
 }
 
 type TLS struct {
 	PemFile string
 	KeyFile string
-}
-
-type RegisterConfig struct {
-	AllowRegister bool
 }
 
 type EmailConfig struct {
@@ -80,10 +75,7 @@ func InitConfig() (c GeneralConfig, err error) {
 			},
 			MCSMConnect: []MCSMConnect{},
 			MongoDbURI:  "mongodb://localhost:27017",
-			RegisterConfig: RegisterConfig{
-				AllowRegister: true,
-			},
-			SiteName: "FkyMCP",
+			SiteName:    "FkyMCP",
 		}
 
 		jsons, err := json.MarshalIndent(general, "", "    ")

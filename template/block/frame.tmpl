@@ -10,7 +10,7 @@
     <link href="//cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css" rel="stylesheet" />
 </head>
 
-<body class="mdui-drawer-body-left mdui-appbar-with-toolbar mdui-theme-primary-blue-grey mdui-theme-accent-pink mdui-theme-layout-light mdui-loaded">
+<body class="mdui-drawer-body-left mdui-appbar-with-toolbar">
 
     <header class="mdui-appbar mdui-appbar-fixed">
         <div class="mdui-toolbar mdui-color-theme">
@@ -49,6 +49,13 @@
                 <i class="mdui-list-item-icon mdui-icon material-icons">error</i>
                 <div class="mdui-list-item-content">问题反馈</div>
             </li>
+            {{if .IsAdmin}}
+            <li class="mdui-subheader">后台管理</li>
+            <li class="mdui-list-item mdui-ripple {{if .AcReport}}mdui-list-item-active{{end}}" onclick="location = '/admin/general'">
+                <i class="mdui-list-item-icon mdui-icon material-icons">error</i>
+                <div class="mdui-list-item-content">基本设置</div>
+            </li>
+            {{end}}
         </ul>
     </div>
 
@@ -347,6 +354,7 @@
     <script>
         var $ = mdui.$;
 
+
         $(function() {
 
             var $document = $(document);
@@ -378,6 +386,16 @@
                 date.setTime(date.getTime() + 365 * 24 * 3600 * 1000);
                 document.cookie = key + '=' + value + '; expires=' + date.toGMTString() + '; path=/';
             };
+
+            var getCookie = function(cname) {
+                var name = cname + "=";
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i].trim();
+                    if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+                }
+                return "";
+            }
 
             var setDocsTheme = function(theme) {
                 if (typeof theme.primary === 'undefined') {
@@ -432,6 +450,12 @@
                     $('input[name="doc-theme-layout"][value="' + theme.layout + '"]').prop('checked', true);
                 }
             };
+
+            setDocsTheme({
+                primary: getCookie("docs-theme-primary"),
+                accent: getCookie("docs-theme-accent"),
+                layout: getCookie("docs-theme-layout"),
+            });
 
             // 切换主色
             $document.on('change', 'input[name="doc-theme-primary"]', function() {

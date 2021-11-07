@@ -4,8 +4,8 @@
 
     <div class="mdui-card">
         <div class="mdui-card-header">
-            <img class="mdui-card-header-avatar" src="https://www.gravatar.com/avatar/{{.ImageHash}}" />
-            <div class="mdui-card-header-title">{{.Username}} </div>
+            <img class="mdui-card-header-avatar" src="https://cravatar.cn/avatar/{{.ImageHash}}" />
+            <div class="mdui-card-header-title">{{.Username}} {{if .IsAdmin}}<span class="mdui-text-color-theme-accent">【管理员】</span>{{end}}</div>
             <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 个服务正在运行！</div>
         </div>
         <div class="mdui-card-actions">

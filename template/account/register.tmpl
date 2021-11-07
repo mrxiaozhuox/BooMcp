@@ -82,8 +82,14 @@
                     email: email,
                     password: password,
                 },
+                dataType: "json",
                 success: function(data, status) {
-                    mdui.alert("账号注册成功！", "注册")
+                    if (!data.verify) {
+                        mdui.alert("账号注册成功！【将在几秒后自动跳转到登录页面】", "注册")
+                        window.location = "/login?from=register"
+                    } else {
+                        mdui.alert("账号注册成功！【您需要先前往邮箱进行验证后才能登录】", "注册")
+                    }
                 },
                 error: function(xhr, status, error) {
                     mdui.alert("账号注册失败：" + error)

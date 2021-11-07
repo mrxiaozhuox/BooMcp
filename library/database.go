@@ -64,7 +64,7 @@ func (mongo DataBase) Ping() bool {
 	return err == nil
 }
 
-func (mongo DataBase) CheckToken(token string, operation string) (interface{}, error) {
+func (mongo DataBase) CheckToken(token string, operation string, clean bool) (interface{}, error) {
 	db := mongo.client.Database(DATABASENAME)
 	collection := db.Collection("Token")
 
@@ -85,6 +85,22 @@ func (mongo DataBase) CheckToken(token string, operation string) (interface{}, e
 
 	if err != nil {
 		return nil, errors.New("数据不存在")
+	}
+
+	if clean {
+		_, err := collection.DeleteOne(context.TODO(), bson.D{
+			{
+				Key:   "token",
+				Value: token,
+			},
+			{
+				Key:   "operation",
+				Value: operation,
+			},
+		})
+		if err != nil {
+			return nil, errors.New("删除 Token 失败")
+		}
 	}
 
 	// 读取成功，返回 Target ObjectID
@@ -185,6 +201,8 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 		} else {
 			// 不需要验证，直接插入
+			// 直接将等级更新为 1 不需要进行激活账号
+			user.Level = 1
 			_, err := collection.InsertOne(context.TODO(), user)
 			if err != nil {
 				return false, errors.New("数据插入失败")
@@ -197,8 +215,51 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 	return false, errors.New("相关数据账号已被注册")
 }
 
-func getObjectID(result *mongo.InsertOneResult) string {
-	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+func (mongo DataBase) AccountLevel(to int, id string) error {
+
+	// 状态码
+	// 0 未激活
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("Users")
+
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{
+		{
+			Key:   "_id",
+			Value: objectID,
+		},
+	}
+	update := bson.D{
+		{
+			Key: "$set",
+			Value: bson.D{
+				{
+					Key:   "level",
+					Value: to,
+				},
+			},
+		},
+	}
+
+	// 尝试更新用户状态码
+	_, err := collection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.New("更新状态失败")
+	}
+
+	return nil
+}
+
+func (mongo DataBase) Title() string {
+	return mongo.config.SiteName
+}
+
+func (mongo DataBase) Config() GeneralConfig {
+	return mongo.config
+}
+
+func GetObjectID(result interface{}) string {
+	if oid, ok := result.(primitive.ObjectID); ok {
 		return oid.Hex()
 	}
 	return ""

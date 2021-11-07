@@ -21,7 +21,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitServer(service *gin.Engine, mongo *library.DataBase, config library.GeneralConfig) {
+func InitServer(service *gin.Engine, db *library.DataBase, config library.GeneralConfig) {
 
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
@@ -43,7 +43,7 @@ func InitServer(service *gin.Engine, mongo *library.DataBase, config library.Gen
 
 	// Api 接口函数定义
 	service.POST("/api/:operation", func(c *gin.Context) {
-		apiService(c, mongo)
+		apiService(c, db)
 	})
 
 	service.GET("/auth", func(c *gin.Context) {
@@ -51,20 +51,53 @@ func InitServer(service *gin.Engine, mongo *library.DataBase, config library.Gen
 		authToken := c.DefaultQuery("token", "")
 
 		if authToken == "" {
-			c.JSON(401, gin.H{
-				"error": "未知的Token",
-			})
-		}
-
-		oid, err := mongo.CheckToken(authToken, authType)
-		if err != nil {
-			c.JSON(400, gin.H{
-				"error": "Token不存在",
+			c.HTML(200, "account/auth.tmpl", gin.H{
+				"Title":  db.Title(),
+				"Result": "Token 信息未输入。",
+				"Type":   authType,
+				"Status": false,
 			})
 			return
 		}
 
-		fmt.Println(oid)
+		if authToken == "AUTH-TOKEN-TEST-SUCCESSFUL" {
+			// 这是成功页面测试的 Token 代码，没有任何意义，只会返回成功页面！
+			c.HTML(200, "account/auth.tmpl", gin.H{
+				"Title":  db.Title(),
+				"Result": "账号 Auth 验证成功！",
+				"Type":   authType,
+				"Status": true,
+			})
+			return
+		}
+
+		oid, err := db.CheckToken(authToken, authType, true)
+		if err != nil {
+			c.HTML(200, "account/auth.tmpl", gin.H{
+				"Title":  db.Title(),
+				"Result": "未知的 Token 信息。",
+				"Type":   authType,
+				"Status": false,
+			})
+			return
+		}
+
+		err = db.AccountLevel(1, library.GetObjectID(oid))
+		if err == nil {
+			c.HTML(200, "account/auth.tmpl", gin.H{
+				"Title":  db.Title(),
+				"Result": "账号 Auth 验证成功！",
+				"Type":   authType,
+				"Status": true,
+			})
+		} else {
+			c.HTML(200, "account/auth.tmpl", gin.H{
+				"Title":  db.Title(),
+				"Result": "账号解锁失败：" + err.Error(),
+				"Type":   authType,
+				"Status": false,
+			})
+		}
 	})
 
 	// 自动跳转到 Dashboard 主页中
@@ -161,6 +194,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 				"status": "successful",
 			})
 		}
+
+	} else if operation == "login" {
+
+		// 登录操作
 
 	}
 

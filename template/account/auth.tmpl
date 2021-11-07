@@ -1,0 +1,60 @@
+{{ define "account/auth.tmpl" }}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} | 账号验证</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/mdui/1.0.2/css/mdui.min.css" rel="stylesheet" />
+</head>
+
+<body class="mdui-color-blue-grey-50">
+
+
+<div class="mdui-container"><br />
+    <div class="mdui-card">
+
+        <!-- 卡片的标题和副标题 -->
+        <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">账号 Auth 验证「{{.Type}}」</div>
+        </div>
+
+        <!-- 卡片的内容 -->
+        <div class="mdui-card-content">
+            <div style="text-align: center">
+
+                <h3>{{.Result}}</h3>
+
+                {{if .Status}}
+                    您的账号验证程序已完成，现在您可以前往 <a href="/login">登录页面</a> 进入您的账号。
+                {{else}}
+                    您的本次验证出现问题，如若需要可以联系站点管理员。
+                {{end}}
+
+            </div>
+        </div>
+
+    </div><br />
+    <div class="mdui-card">
+        <!-- 卡片的内容 -->
+        <div class="mdui-card-content" style="text-align:center;">
+            Powered By <a href="https://mrxzx.info/">mrxzx.info</a>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/mdui/1.0.2/js/mdui.min.js"></script>
+
+<script>
+    console.log("这是一个前端UI废物做的页面qwq - mrxzx.info")
+</script>
+
+</body>
+
+</html>
+
+{{ end }}

@@ -12,7 +12,7 @@ import (
 	"fkyos.com/mcp/library"
 	"fkyos.com/mcp/service"
 	"github.com/gin-gonic/gin"
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(f)
 	r := gin.Default()
 
-	service.InitServer(r, mongo, config)
+	service.InitServer(r, mongo, config, pack)
 }
 
 func fatalError(err error) {

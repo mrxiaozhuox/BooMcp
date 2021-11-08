@@ -2,4 +2,4 @@
 
 go build -o ./.env/fkymcp
 
-./.env/fkymcp
+./.env/fkymcp uint

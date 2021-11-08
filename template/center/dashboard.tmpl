@@ -40,12 +40,21 @@
                             <td>{{.UserInfo.Email}}</td>
                         </tr>
                         <tr>
-                            <td>性别</td>
-                            <td>@fat</td>
+                            <td>注册日期</td>
+                            <td id="reg-datetime"></td>
+                            <script>
+                                var meta = parseInt("{{.UserInfo.Regtime}}");
+                                var date = new Date(meta);
+
+                                Y = date.getFullYear() + '年';
+                                M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '月';
+                                D = date.getDate() + '日';
+                                $("#reg-datetime").text(Y + M + D);
+                            </script>
                         </tr>
                         <tr>
                             <td>123</td>
-                            <td>@twitter</td>
+                            <td>@twitt123er</td>
                         </tr>
                     </tbody>
                 </table>

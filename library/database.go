@@ -11,7 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +23,7 @@ const DATABASENAME string = "fkymcp"
 type DataBase struct {
 	client *mongo.Client
 	config GeneralConfig
-	packer packr.Box
+	packer *packr.Box
 }
 
 type UserInfo struct {
@@ -43,7 +43,7 @@ type TokenStruct struct {
 	Operation string
 }
 
-func MongoConnect(config GeneralConfig, pack packr.Box) (*DataBase, error) {
+func MongoConnect(config GeneralConfig, pack *packr.Box) (*DataBase, error) {
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MongoDbURI))
 	if err != nil {

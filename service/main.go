@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,18 +19,24 @@ import (
 	"fkyos.com/mcp/library"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gobuffalo/packr/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitServer(service *gin.Engine, db *library.DataBase, config library.GeneralConfig) {
+func InitServer(service *gin.Engine, db *library.DataBase, config library.GeneralConfig, pack *packr.Box) {
 
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
 
 	// 尝试加载 template 目录下的所有页面模板文件
-	service.LoadHTMLGlob("template/**/*")
+	templates, err := loadTemplate(pack)
+	if err != nil {
+		panic(err)
+	}
+	service.SetHTMLTemplate(templates)
+	// service.LoadHTMLGlob("template/**/*")
 
 	service.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "account/login.tmpl", gin.H{
@@ -156,7 +163,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		}
 	})
 
-	err := service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
+	err = service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -261,4 +268,29 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		})
 		return
 	}
+}
+
+func loadTemplate(box *packr.Box) (*template.Template, error) {
+
+	t := template.New("")
+
+	for _, path := range box.List() {
+
+		if path == ".DS_Store" {
+			continue
+		}
+
+		s, err := box.FindString(path)
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+		t, err = t.New(path).Parse(s)
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+		fmt.Println("Loading template: ", path)
+	}
+	return t, nil
 }

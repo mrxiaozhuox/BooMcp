@@ -13,10 +13,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"fkyos.com/mcp/library"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 )
@@ -145,6 +147,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 				"Title":              db.Title(),
 				"AcDashboard":        true,
 				"Username":           session.Get("username"),
+				"UserInfo":           user,
 				"ImageHash":          imageHash,
 				"OnlineServerNumber": 0,
 				"IsAdmin":            user.Level >= 2,
@@ -202,10 +205,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			Password: password,
 			Salt:     salt,
 			Email:    email,
-			Sex:      2,
-			About:    "",
+			About:    "Hello World!",
 			Status:   0,
 			Level:    0,
+			Regtime:  primitive.NewDateTimeFromTime(time.Now()),
 		}
 
 		needVerify, err := mongo.Register(user)

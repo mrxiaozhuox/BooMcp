@@ -29,12 +29,12 @@ type DataBase struct {
 type UserInfo struct {
 	Username string
 	Email    string
-	Sex      int
 	About    string
 	Password string
 	Salt     string
 	Status   int
 	Level    int
+	Regtime  primitive.DateTime
 }
 
 type TokenStruct struct {

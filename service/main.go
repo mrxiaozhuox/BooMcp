@@ -13,7 +13,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"fkyos.com/mcp/library"
@@ -30,13 +32,23 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
 
-	// 尝试加载 template 目录下的所有页面模板文件
-	templates, err := loadTemplate(pack)
-	if err != nil {
-		panic(err)
+	uint := false
+	for _, value := range os.Args {
+		if strings.ToUpper(value) == "UINT" {
+			uint = true
+		}
 	}
-	service.SetHTMLTemplate(templates)
-	// service.LoadHTMLGlob("template/**/*")
+
+	// 尝试加载 template 目录下的所有页面模板文件
+	if uint {
+		service.LoadHTMLGlob("template/**/*")
+	} else {
+		templates, err := loadTemplate(pack)
+		if err != nil {
+			panic(err)
+		}
+		service.SetHTMLTemplate(templates)
+	}
 
 	service.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "account/login.tmpl", gin.H{
@@ -163,7 +175,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		}
 	})
 
-	err = service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
+	err := service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
 	if err != nil {
 		log.Fatalln(err)
 	}

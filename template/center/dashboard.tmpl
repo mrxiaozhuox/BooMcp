@@ -5,11 +5,14 @@
     <div class="mdui-card">
         <div class="mdui-card-header">
             <img class="mdui-card-header-avatar" src="https://cravatar.cn/avatar/{{.ImageHash}}" />
-            <div class="mdui-card-header-title">{{.Username}} {{if .IsAdmin}}<span class="mdui-text-color-theme-accent">【管理员】</span>{{end}}</div>
+            <div class="mdui-card-header-title">
+                {{.Username}} {{if .IsAdmin}}<span class="mdui-text-color-theme-accent">【管理员】</span>{{end}}
+            </div>
             <div class="mdui-card-header-subtitle">您当前有 {{.OnlineServerNumber}} 个服务正在运行！</div>
         </div>
         <div class="mdui-card-actions">
             <button class="mdui-btn mdui-ripple">购置服务</button>
+            <button class="mdui-btn mdui-ripple">编辑信息</button>
             <button class="mdui-btn mdui-ripple">账号登出</button>
         </div>
     </div><br/>
@@ -37,7 +40,9 @@
                     <tbody>
                         <tr>
                             <td>用户邮箱</td>
-                            <td>{{.UserInfo.Email}}</td>
+                            <td>
+                                {{.UserInfo.Email}}
+                            </td>
                         </tr>
                         <tr>
                             <td>注册日期</td>
@@ -51,10 +56,6 @@
                                 D = date.getDate() + '日';
                                 $("#reg-datetime").text(Y + M + D);
                             </script>
-                        </tr>
-                        <tr>
-                            <td>123</td>
-                            <td>@twitt123er</td>
                         </tr>
                     </tbody>
                 </table>

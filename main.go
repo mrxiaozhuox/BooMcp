@@ -31,7 +31,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	pack := packr.NewBox("./template")
+	pack := packr.New("Template", "./template")
 
 	f, err := os.Create(path.Join(rootPath, "log", "service.log"))
 	if err != nil {

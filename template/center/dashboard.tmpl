@@ -13,7 +13,7 @@
         <div class="mdui-card-actions">
             <button class="mdui-btn mdui-ripple">购置服务</button>
             <button class="mdui-btn mdui-ripple">编辑信息</button>
-            <button class="mdui-btn mdui-ripple">账号登出</button>
+            <button class="mdui-btn mdui-ripple" id="logout">账号登出</button>
         </div>
     </div><br/>
 
@@ -64,5 +64,20 @@
     </div>
 
 </div>
+
+<script>
+    $("#logout").on("click", function() {
+        $.ajax({
+            url: "/api/logout",
+            method: "post",
+            success: function() {
+                window.location.reload();
+            },
+            error: function() {
+                mdui.alert("账号注销失败！");
+            }
+        });
+    })
+</script>
 
 {{ template "block/end.tmpl" .}} {{ end }}

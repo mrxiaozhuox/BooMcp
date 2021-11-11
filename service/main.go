@@ -282,23 +282,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 	} else if operation == "logout" {
 
 		if session.Get("username") != nil {
+
 			session.Delete("username")
 			session.Delete("email")
-
-			err := session.Save()
-
-			if err != nil {
-				c.JSON(200, gin.H{
-					"status": "成功",
-				})
-				return
-			} else {
-				c.JSON(500, gin.H{
-					"error": "注销失败",
-				})
-				return
-			}
-
+			_ = session.Save()
 		}
 
 		c.JSON(200, gin.H{

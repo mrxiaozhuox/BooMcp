@@ -71,7 +71,10 @@
             url: "/api/logout",
             method: "post",
             success: function() {
-                window.location.reload();
+                mdui.alert("登出成功，即将跳转到登录页面！");
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1000);
             },
             error: function() {
                 mdui.alert("账号注销失败！");

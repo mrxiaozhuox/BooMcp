@@ -12,7 +12,7 @@
         </div>
         <div class="mdui-card-actions">
             <button class="mdui-btn mdui-ripple">购置服务</button>
-            <button class="mdui-btn mdui-ripple">编辑信息</button>
+            <button class="mdui-btn mdui-ripple" id="editinfo">编辑信息</button>
             <button class="mdui-btn mdui-ripple" id="logout">账号登出</button>
         </div>
     </div><br/>
@@ -65,6 +65,39 @@
 
 </div>
 
+<div class="mdui-dialog" id="edit-dialog">
+
+    <div class="mdui-dialog-title">编辑信息</div>
+
+    <div class="mdui-dialog-content">
+        <div class="mdui-container">
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <label class="mdui-textfield-label">用户名</label>
+                <input class="mdui-textfield-input" type="text" value="{{.UserInfo.Username}}" />
+            </div>
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <label class="mdui-textfield-label">邮箱地址</label>
+                <input class="mdui-textfield-input" type="email" value="{{.UserInfo.Email}}" />
+            </div>
+
+            <!-- 保存、更改密码按钮 -->
+            <div class="mdui-btn-group">
+                <button class="mdui-btn mdui-color-theme-accent">提交更新</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 储存原始数据，用于检查更新数据是否被变化
+        var orivalue = {
+            username: "{{.UserInfo.Username}}",
+            email: "{{.UserInfo.Email}}",
+        }
+    </script>
+
+</div>
+
 <script>
     $("#logout").on("click", function() {
         $.ajax({
@@ -80,6 +113,11 @@
                 mdui.alert("账号注销失败！");
             }
         });
+    })
+
+    var edit_dialog = new mdui.Dialog("#edit-dialog", {});
+    $("#editinfo").on("click", function() {
+        edit_dialog.open();
     })
 </script>
 

@@ -292,6 +292,19 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			"status": "成功",
 		})
 		return
+
+	} else if operation == "edit-info" {
+
+		username := session.Get("username")
+		email := session.Get("email")
+
+		if username == nil || email == nil {
+			c.JSON(401, gin.H{
+				"error": "用户未登录",
+			})
+			return
+		}
+
 	}
 }
 

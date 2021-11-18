@@ -305,6 +305,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
+		return
 	}
 }
 

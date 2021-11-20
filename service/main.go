@@ -305,6 +305,8 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		// 编辑用户个人信息
+
 		c.JSON(200, gin.H{
 			"status": "成功",
 		})

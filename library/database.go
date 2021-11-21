@@ -67,6 +67,14 @@ func (mongo DataBase) Ping() bool {
 	return err == nil
 }
 
+func (mongo DataBase) SetTempData(dtype string, data interface{}, uid interface{}) {
+
+}
+
+func (mongo DataBase) GetTempData(uid interface{}, clean interface{``}) {
+
+}
+
 func (mongo DataBase) CheckToken(token string, operation string, clean bool) (interface{}, error) {
 	db := mongo.client.Database(DATABASENAME)
 	collection := db.Collection("Token")

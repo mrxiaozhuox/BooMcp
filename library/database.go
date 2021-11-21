@@ -67,11 +67,34 @@ func (mongo DataBase) Ping() bool {
 	return err == nil
 }
 
-func (mongo DataBase) SetTempData(dtype string, data interface{}, uid interface{}) {
+func (mongo DataBase) SetTempData(dtype string, data interface{}, checker interface{}) (bool, error) {
 
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("TempData")
+
+	_, err := collection.InsertOne(context.TODO(), bson.D{
+		{
+			Key:   "type",
+			Value: dtype,
+		},
+		{
+			Key:   "data",
+			Value: data,
+		},
+		{
+			Key:   "checker",
+			Value: checker,
+		},
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func (mongo DataBase) GetTempData(uid interface{}, clean interface{``}) {
+func (mongo DataBase) GetTempData(uid interface{}, clean interface{}) {
 
 }
 

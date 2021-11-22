@@ -22,6 +22,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gobuffalo/packr/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,18 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
 
-	_, err := db.SetTempData("SERVER", "SERVER-TEST", "SERVER")
+	// 写入系统运行时的信息到 TempData 中，用于记录系统运行信息
+	_, err := db.SetTempData("system", bson.D{
+		{
+			Key:   "start-time",
+			Value: time.Now().Format("2006-01-02 15:04:05"),
+		},
+		{
+			Key:   "loaded-config",
+			Value: config,
+		},
+	}, "SERVER-INFO")
+
 	if err != nil {
 		log.Fatal(err.Error())
 	}

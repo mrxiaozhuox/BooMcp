@@ -72,6 +72,7 @@ func (mongo DataBase) SetTempData(dtype string, data interface{}, checker interf
 	db := mongo.client.Database(DATABASENAME)
 	collection := db.Collection("TempData")
 
+	// 写入新的代码数据
 	_, err := collection.InsertOne(context.TODO(), bson.D{
 		{
 			Key:   "type",

@@ -72,8 +72,17 @@ func (mongo DataBase) SetTempData(dtype string, data interface{}, checker interf
 	db := mongo.client.Database(DATABASENAME)
 	collection := db.Collection("TempData")
 
-	// 写入新的代码数据
-	_, err := collection.InsertOne(context.TODO(), bson.D{
+	// 查找是否有重复的 checker
+	einfo := collection.FindOne(context.TODO(), bson.D{
+		{
+			Key:   "checker",
+			Value: checker,
+		},
+	}).Err()
+
+	var err error
+
+	value := bson.D{
 		{
 			Key:   "type",
 			Value: dtype,
@@ -86,7 +95,19 @@ func (mongo DataBase) SetTempData(dtype string, data interface{}, checker interf
 			Key:   "checker",
 			Value: checker,
 		},
-	})
+	}
+
+	if einfo == nil {
+		_, _ = collection.DeleteOne(context.TODO(), bson.D{
+			{
+				Key:   "checker",
+				Value: checker,
+			},
+		})
+	}
+
+	// 写入新的代码数据
+	_, err = collection.InsertOne(context.TODO(), value)
 
 	if err != nil {
 		return false, err

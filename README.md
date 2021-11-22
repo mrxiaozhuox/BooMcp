@@ -7,3 +7,7 @@ COM.FKYOS.MCP
 ## 作者
 
 [YuKun Liu](https://mrxzx.info/) (mrxzx.info@gmail.com)
+
+## MCSM
+
+[MCSManager](https://github.com/Suwings/MCSManager/)

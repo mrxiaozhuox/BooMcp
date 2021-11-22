@@ -32,6 +32,11 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 	store := cookie.NewStore([]byte("secret"))
 	service.Use(sessions.Sessions("fkyos", store))
 
+	_, err := db.SetTempData("SERVER", "SERVER-TEST", "SERVER")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	uint := false
 	for _, value := range os.Args {
 		if strings.ToUpper(value) == "UINT" {
@@ -175,7 +180,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		}
 	})
 
-	err := service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
+	err = service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))
 	if err != nil {
 		log.Fatalln(err)
 	}

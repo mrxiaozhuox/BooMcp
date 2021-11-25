@@ -272,7 +272,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 	if err != nil {
 
 		// 插入账号待验证信息
-		if mongo.config.EmailConfig.Server != "" || user.Level <= 0 {
+		if mongo.config.EmailConfig.Server != "" && user.Level <= 0 {
 			// 不为空则说明配置了邮箱系统信息
 			// 自动检测是否支持
 

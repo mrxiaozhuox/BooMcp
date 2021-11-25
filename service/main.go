@@ -181,16 +181,31 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 			// DashBoard 页面操作
 
 			c.HTML(http.StatusOK, "center/dashboard.tmpl", gin.H{
-				"Title":              db.Title(),
-				"AcDashboard":        true,
-				"Username":           session.Get("username"),
-				"UserInfo":           user,
+				"Title":       db.Title(),
+				"AcDashboard": true,
+				"Username":    session.Get("username"),
+				"UserInfo":    user,
+				"IsAdmin":     user.Level >= 2,
+
+				/* 页面内容数据 */
 				"ImageHash":          imageHash,
 				"OnlineServerNumber": 0,
-				"IsAdmin":            user.Level >= 2,
 			})
 			return
+
+		} else if page == "initacc" {
+
+			// InitAcc 系统信息
+			c.HTML(http.StatusOK, "center/initacc.tmpl", gin.H{
+				"Title":    db.Title(),
+				"Username": session.Get("username"),
+				"UserInfo": user,
+				"IsAdmin":  user.Level >= 2,
+			})
+			return
+
 		}
+
 	})
 
 	err = service.Run(config.Hostname + ":" + strconv.Itoa(config.Port))

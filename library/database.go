@@ -6,8 +6,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -35,6 +37,7 @@ type UserInfo struct {
 	Status   int
 	Level    int
 	Regtime  primitive.DateTime
+	Initacc  bool
 }
 
 type TokenStruct struct {
@@ -64,6 +67,43 @@ func MongoConnect(config GeneralConfig, pack *packr.Box) (*DataBase, error) {
 
 func (mongo DataBase) InitDataBase() error {
 
+	if !mongo.Ping() {
+		return errors.New("数据库连接错误")
+	}
+
+	// db := mongo.client.Database(DATABASENAME)
+	// userCollect := db.Collection("Users")
+
+	randBytes := make([]byte, 10/2)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		return err
+	}
+
+	salt := fmt.Sprintf("%x", randBytes)
+
+	// 默认密码为 fkyos.com
+	h := md5.New()
+	h.Write([]byte("fkyos.com"))
+
+	password := hex.EncodeToString(h.Sum(nil))
+
+	// 初始化系统第一个管理员用户
+	// InitAcc 则代表这个账号允许在不经过邮箱验证的情况下更新一次个人信息（可以换邮箱）
+	user := UserInfo{
+		Username: "admin",
+		Email:    "admin@fkyos.com",
+		Salt:     salt,
+		Password: password,
+		About:    "我就是最无敌的存在！",
+		Status:   0,
+		Level:    1,
+		Initacc:  true,
+		Regtime:  primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	_, err = mongo.Register(user)
+	return err
 }
 
 func (mongo DataBase) Ping() bool {

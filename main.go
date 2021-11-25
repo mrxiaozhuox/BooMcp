@@ -44,7 +44,8 @@ func main() {
 
 	// 如果数据库未被初始化则初始化数据库信息
 	if !exists(path.Join(rootPath, "log", ".init_server")) {
-		mongo.
+		err = mongo.InitDataBase()
+		fatalError(err)
 	}
 
 	gin.DefaultWriter = io.MultiWriter(f)

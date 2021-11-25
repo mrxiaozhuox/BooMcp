@@ -246,6 +246,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			Status:   0,
 			Level:    0,
 			Regtime:  primitive.NewDateTimeFromTime(time.Now()),
+			Initacc:  false,
 		}
 
 		needVerify, err := mongo.Register(user)

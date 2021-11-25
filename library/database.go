@@ -62,6 +62,10 @@ func MongoConnect(config GeneralConfig, pack *packr.Box) (*DataBase, error) {
 	}, nil
 }
 
+func (mongo DataBase) InitDataBase() error {
+
+}
+
 func (mongo DataBase) Ping() bool {
 	err := mongo.client.Ping(context.TODO(), nil)
 	return err == nil

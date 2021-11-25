@@ -97,7 +97,7 @@ func (mongo DataBase) InitDataBase() error {
 		Password: password,
 		About:    "我就是最无敌的存在！",
 		Status:   0,
-		Level:    1,
+		Level:    2,
 		Initacc:  true,
 		Regtime:  primitive.NewDateTimeFromTime(time.Now()),
 	}
@@ -272,7 +272,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 	if err != nil {
 
 		// 插入账号待验证信息
-		if mongo.config.EmailConfig.Server != "" {
+		if mongo.config.EmailConfig.Server != "" || user.Level <= 0 {
 			// 不为空则说明配置了邮箱系统信息
 			// 自动检测是否支持
 
@@ -326,7 +326,9 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		} else {
 			// 不需要验证，直接插入
 			// 直接将等级更新为 1 不需要进行激活账号
-			user.Level = 1
+			if user.Level < 1 {
+				user.Level = 1
+			}
 			_, err := collection.InsertOne(context.TODO(), user)
 			if err != nil {
 				return false, errors.New("数据插入失败")

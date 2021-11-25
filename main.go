@@ -42,6 +42,11 @@ func main() {
 	fatalError(err)
 	log.Println("数据库连接测试成功！[PONG]")
 
+	// 如果数据库未被初始化则初始化数据库信息
+	if !exists(path.Join(rootPath, "log", ".init_server")) {
+		mongo.
+	}
+
 	gin.DefaultWriter = io.MultiWriter(f)
 	r := gin.Default()
 
@@ -53,4 +58,27 @@ func fatalError(err error) {
 		log.Fatalln(err)
 		os.Exit(0)
 	}
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
+func isDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+
+func isFile(path string) bool {
+	return !isDir(path)
 }

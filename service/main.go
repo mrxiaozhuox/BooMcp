@@ -44,6 +44,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 			Value: config,
 		},
 	}, "SERVER-INFO")
+	// db.GetTempData("system", "SERVER-INFO", false)
 
 	if err != nil {
 		log.Fatal(err.Error())

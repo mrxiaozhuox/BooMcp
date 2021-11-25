@@ -116,8 +116,31 @@ func (mongo DataBase) SetTempData(dtype string, data interface{}, checker interf
 	return true, nil
 }
 
-func (mongo DataBase) GetTempData(uid interface{}, clean interface{}) {
+func (mongo DataBase) GetTempData(dtype string, checker interface{}, clean bool) (interface{}, error) {
 
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("TempData")
+
+	var temp bson.D
+
+	res := collection.FindOne(context.TODO(), bson.D{
+		{
+			Key:   "type",
+			Value: dtype,
+		},
+		{
+			Key:   "checker",
+			Value: checker,
+		},
+	}).Decode(&temp)
+
+	dmap := temp.Map()
+
+	if res != nil {
+		return nil, res
+	}
+
+	return dmap["data"], nil
 }
 
 func (mongo DataBase) CheckToken(token string, operation string, clean bool) (interface{}, error) {

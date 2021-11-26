@@ -1,9 +1,58 @@
 {{ define "center/initacc.tmpl" }} {{ template "block/frame.tmpl" .}}
 
-<div class="mdui-container"> <br /> 123
+<div class="mdui-container"> <br />
+
+    <div class="mdui-card">
+
+        <div class="mdui-card-header">
+            <img class="mdui-card-header-avatar" src="https://api.uomg.com/api/rand.avatar?sort=动漫男&format=image" />
+            <div class="mdui-card-header-title">初始账号信息激活绑定 [ Item: InitAcc ] </div>
+            <div class="mdui-card-header-subtitle">您可以在不验证邮箱的情况下更新一次邮箱、用户名和密码</div>
+        </div>
+
+        <div class="mdui-card-content">
+            <form id="upload">
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">用户名称</label>
+                    <input class="mdui-textfield-input" type="text" id="username" />
+                </div>
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">用户邮箱</label>
+                    <input class="mdui-textfield-input" type="email" id="email" />
+                </div>
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">用户密码</label>
+                    <input class="mdui-textfield-input" type="password" id="password" />
+                </div>
+                <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" type="submit">block</button>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script>
+    $("#upload").on("submit", function(v) {
+
+        var username = $("#username").val()
+        var email = $("#email").val()
+        var password = $("#password").val()
+
+        // 数据没填写完整，不管它
+        if (username == "" || email == "" || password == "") {
+            mdui.alert("请将数据项填写完整！", "InitAcc");
+            return false;
+        }
+
+        $.ajax({
+            url: "/api/initacc",
+            data: {
+                username:
+            }
+        })
+
+        return false;
+    });
 </script>
 
 {{ template "block/end.tmpl" .}} {{ end }}

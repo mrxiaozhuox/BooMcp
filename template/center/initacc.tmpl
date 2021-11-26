@@ -24,11 +24,14 @@
                     <label class="mdui-textfield-label">用户密码</label>
                     <input class="mdui-textfield-input" type="password" id="password" />
                 </div>
-                <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" type="submit">block</button>
+                {{ if .UserInfo.Initacc }}
+                <!-- 允许用户进行更新 -->
+                <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" type="submit">提交</button> {{ else }}
+                <!-- 不允许用户进行更新 -->
+                <button class="mdui-btn mdui-btn-raised mdui-btn-block" disabled>您的账号没有 InitAcc 权限！</button> {{ end }}
             </form>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -47,7 +50,16 @@
         $.ajax({
             url: "/api/initacc",
             data: {
-                username:
+                username: username,
+                email: email,
+                password: password,
+            },
+            success: function(data) {
+                mdui.alert(data);
+            },
+            error: function(xhr, textStatus) {
+                mdui.alert("InitAcc请求错误！", "InitAcc");
+                return false;
             }
         })
 

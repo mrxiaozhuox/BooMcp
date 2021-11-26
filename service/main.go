@@ -195,6 +195,8 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 
 		} else if page == "initacc" {
 
+			log.Println(user)
+
 			// InitAcc 系统信息
 			c.HTML(http.StatusOK, "center/initacc.tmpl", gin.H{
 				"Title":    db.Title(),

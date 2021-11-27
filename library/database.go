@@ -20,7 +20,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-const DATABASENAME string = "fkymcp"
+const DATABASENAME string = "boomcp"
 
 type DataBase struct {
 	client *mongo.Client

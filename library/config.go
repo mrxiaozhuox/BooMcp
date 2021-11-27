@@ -75,7 +75,7 @@ func InitConfig() (c GeneralConfig, err error) {
 			},
 			MCSMConnect: []MCSMConnect{},
 			MongoDbURI:  "mongodb://localhost:27017",
-			SiteName:    "FkyMCP",
+			SiteName:    "BooMcp",
 		}
 
 		jsons, err := json.MarshalIndent(general, "", "    ")

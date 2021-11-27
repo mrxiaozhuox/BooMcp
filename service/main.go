@@ -353,6 +353,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		oriUsername := session.Get("username")
 		oriEmail := session.Get("email")
 
+		newUsername := c.PostForm("username")
+		newEmail := c.PostForm("email")
+		newPassword := c.PostForm("password")
+
 		if oriEmail == nil || oriUsername == nil {
 			c.JSON(401, gin.H{
 				"error": "用户未登录",
@@ -374,6 +378,18 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			})
 			return
 		}
+
+		err = mongo.UpdateUser(bson.D{
+			{
+				Key: "$set",
+				Value: bson.D{
+					{
+						Key: "email",
+						Value: ,
+					}
+				},
+			},
+		}, oriUser.Email)
 
 	}
 }

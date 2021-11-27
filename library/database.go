@@ -374,6 +374,23 @@ func (mongo DataBase) GetUser(email string) (UserInfo, error) {
 	return user, err
 }
 
+// 这个函数用于用户更新
+func (mongo DataBase) UpdateUser(data bson.D, oriEmail string) error {
+
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection("Users")
+
+	_, err := collection.UpdateOne(context.TODO(), bson.D{
+		{
+			Key:   "email",
+			Value: oriEmail,
+		},
+	}, data)
+
+	return err
+
+}
+
 func (mongo DataBase) AccountLevel(to int, id string) error {
 
 	// 状态码

@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"fkyos.com/mcp/library"
-	"fkyos.com/mcp/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gobuffalo/packr/v2"
+	"mrxzx.info/mcp/library"
+	"mrxzx.info/mcp/service"
 )
 
 func main() {

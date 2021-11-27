@@ -1,4 +1,4 @@
-module fkyos.com/mcp
+module mrxzx.info/mcp
 
 go 1.17
 

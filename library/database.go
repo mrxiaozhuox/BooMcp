@@ -82,9 +82,9 @@ func (mongo DataBase) InitDataBase() error {
 
 	salt := fmt.Sprintf("%x", randBytes)
 
-	// 默认密码为 fkyos.com
+	// 默认密码为 mrxzx.info
 	h := md5.New()
-	h.Write([]byte("fkyos.com"))
+	h.Write([]byte("mrxzx.info"))
 
 	password := hex.EncodeToString(h.Sum(nil))
 
@@ -92,7 +92,7 @@ func (mongo DataBase) InitDataBase() error {
 	// InitAcc 则代表这个账号允许在不经过邮箱验证的情况下更新一次个人信息（可以换邮箱）
 	user := UserInfo{
 		Username: "admin",
-		Email:    "admin@fkyos.com",
+		Email:    "admin@mrxzx.info",
 		Salt:     salt,
 		Password: password,
 		About:    "我就是最无敌的存在！",

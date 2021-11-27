@@ -18,12 +18,12 @@ import (
 	"strings"
 	"time"
 
-	"fkyos.com/mcp/library"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gobuffalo/packr/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"mrxzx.info/mcp/library"
 
 	"github.com/gin-gonic/gin"
 )
@@ -347,6 +347,34 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			"status": "成功",
 		})
 		return
+	} else if operation == "initacc" {
+
+		// 原始数据（因为这里涉及到数据更新，所以说使用 oriX 表示）
+		oriUsername := session.Get("username")
+		oriEmail := session.Get("email")
+
+		if oriEmail == nil || oriUsername == nil {
+			c.JSON(401, gin.H{
+				"error": "用户未登录",
+			})
+			return
+		}
+
+		oriUser, err := mongo.GetUser(oriEmail.(string))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "用户信息错误",
+			})
+			return
+		}
+
+		if !oriUser.Initacc {
+			c.JSON(400, gin.H{
+				"error": "账号无权使用本服务",
+			})
+			return
+		}
+
 	}
 }
 

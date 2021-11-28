@@ -36,11 +36,11 @@ type EmailConfig struct {
 }
 
 type MCSMConnect struct {
-	Domain     string
-	ApiKey     string
-	Active     bool
-	UpdateTime int
-	checkTime  int
+	Name          string
+	Domain        string
+	ApiKey        string
+	MasterToken   string
+	MaximumMemory int
 }
 
 func InitConfig() (c GeneralConfig, err error) {

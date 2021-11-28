@@ -379,6 +379,14 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		_, state := mongo.GetUser(newEmail)
+		if state == nil {
+			c.JSON(400, gin.H{
+				"error": "邮箱信息已存在",
+			})
+			return
+		}
+
 		newSalt, newMetaPassword := library.MakePassword(newPassword)
 
 		err = mongo.UpdateUser(bson.D{
@@ -408,6 +416,18 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 				},
 			},
 		}, oriUser.Email)
+
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "服务器数据插入失败",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
+		return
 
 	}
 }

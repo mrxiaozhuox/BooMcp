@@ -49,16 +49,18 @@
 
         $.ajax({
             url: "/api/initacc",
+            method: "POST",
             data: {
                 username: username,
                 email: email,
                 password: password,
             },
             success: function(data) {
-                mdui.alert(data);
+                mdui.alert("账号更新成功！稍后您将需要重新登录您的账号！");
+                window.location.href = "/login?from=initacc";
             },
             error: function(xhr, textStatus) {
-                mdui.alert("InitAcc请求错误！", "InitAcc");
+                mdui.alert("InitAcc请求错误：" + JSON.parse(xhr.response).error + "！", "InitAcc");
                 return false;
             }
         })

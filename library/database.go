@@ -446,3 +446,19 @@ func MetaPassword(password string, salt string) string {
 	h.Write([]byte(password))
 	return hex.EncodeToString(h.Sum(nil))
 }
+
+func MakePassword(password string) (string, string) {
+
+	randBytes := make([]byte, 10/2)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		return "", ""
+	}
+
+	salt := fmt.Sprintf("%x", randBytes)
+
+	h := md5.New()
+	h.Write([]byte(password))
+
+	return salt, hex.EncodeToString(h.Sum(nil))
+}

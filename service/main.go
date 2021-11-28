@@ -379,14 +379,32 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		newSalt, newMetaPassword := library.MakePassword(newPassword)
+
 		err = mongo.UpdateUser(bson.D{
 			{
 				Key: "$set",
 				Value: bson.D{
 					{
-						Key: "email",
-						Value: ,
-					}
+						Key:   "email",
+						Value: newEmail,
+					},
+					{
+						Key:   "username",
+						Value: newUsername,
+					},
+					{
+						Key:   "password",
+						Value: newMetaPassword,
+					},
+					{
+						Key:   "salt",
+						Value: newSalt,
+					},
+					{
+						Key:   "initacc",
+						Value: false,
+					},
 				},
 			},
 		}, oriUser.Email)

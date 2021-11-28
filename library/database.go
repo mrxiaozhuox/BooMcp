@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -38,6 +40,7 @@ type UserInfo struct {
 	Level    int
 	Regtime  primitive.DateTime
 	Initacc  bool
+	Mcsmpwd  map[string]string
 }
 
 type TokenStruct struct {
@@ -269,6 +272,21 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		},
 	).Decode(&temp)
 
+	// 为用户注册 MCSM 相关账号！
+	var MCSMPwd map[string]string
+	for _, value := range mongo.config.MCSMConnect {
+		MCSMPwd[value.Name] = RandValue()
+		http.PostForm(
+			value.Domain+"/api/create_user/?apikey="+value.ApiKey,
+			url.Values{
+				"username": {user.Email},
+				"password": {
+					MCSMPwd[value.Name],
+				},
+			},
+		)
+	}
+
 	if err != nil {
 
 		// 插入账号待验证信息
@@ -461,4 +479,13 @@ func MakePassword(password string) (string, string) {
 	h.Write([]byte(password))
 
 	return salt, hex.EncodeToString(h.Sum(nil))
+}
+
+func RandValue() string {
+	randBytes := make([]byte, 10/2)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("%x", randBytes)
 }

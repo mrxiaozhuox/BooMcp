@@ -39,7 +39,6 @@ type UserInfo struct {
 	Regtime  primitive.DateTime
 	Initacc  bool
 	Mcsmpwd  map[string]string
-	Mcsmuid  string
 }
 
 type TokenStruct struct {

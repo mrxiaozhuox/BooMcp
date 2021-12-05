@@ -216,6 +216,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 	}
 }
 
+// 接口相关服务函数
 func apiService(c *gin.Context, mongo *library.DataBase) {
 
 	operation := c.Param("operation")
@@ -428,6 +429,33 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			"status": "成功",
 		})
 		return
+
+	} else if operation == "mcsm-load" {
+
+		// 重新对账号进行 MCSM 账号注册！
+
+		// 获取当前登录的用户信息
+		// username := session.Get("username")
+		email := session.Get("email")
+
+		user, err := mongo.GetUser(email.(string))
+
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "用户信息错误",
+			})
+			return
+		}
+
+		for _, conn := range mongo.Config().MCSMConnect {
+
+			if _, ok := user.Mcsmpwd[conn.Name]; ok {
+				// 已经存在了，则往后继续查找
+				_ = user.Mcsmpwd[conn.Name]
+				continue
+			}
+
+		}
 
 	}
 }

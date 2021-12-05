@@ -1,6 +1,7 @@
 package library
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -77,4 +78,44 @@ func BulkRegisterMcsmUser(config GeneralConfig, oid string, pwds map[string]stri
 	}
 
 	return status
+}
+
+// Register_MCSM_User
+// 本函数用作单次注册
+func RegisterMcsmUser(oid string, password string, domain string, token string) error {
+
+	if len(oid) > 12 {
+		// 根据 ObjectID 生成的方式来看，前12位已经完全可以唯一了，所以说把后面的省略掉也行
+		oid = oid[0:12]
+	}
+
+	resp, err := http.PostForm(
+		domain+"/api/create_user/?apikey="+token,
+		url.Values{
+			"username": {oid},
+			"password": {password},
+			"serverlist": {
+				"",
+			},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	bodyStr := string(body)
+
+	if bodyStr == "{\"status\":200}" {
+		return nil
+	} else {
+		return errors.New("请求接口错误")
+	}
+
 }

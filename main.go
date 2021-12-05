@@ -43,12 +43,12 @@ func main() {
 	log.Println("数据库连接测试成功！[PONG]")
 
 	// 如果数据库未被初始化则初始化数据库信息
-	if !exists(path.Join(rootPath, "config", "server.init")) {
+	if !exists(path.Join(rootPath, "config", "server.ini")) {
 		err = mongo.InitDataBase()
 		fatalError(err)
 
 		// 创建服务器已初始化标记
-		_, err = os.Create(path.Join(rootPath, "config", "server.init"))
+		_, err = os.Create(path.Join(rootPath, "config", "server.ini"))
 		fatalError(err)
 
 		log.Println("数据库首次初始化成功！[MONGO]")

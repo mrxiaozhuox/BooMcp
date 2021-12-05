@@ -38,7 +38,6 @@ type EmailConfig struct {
 type MCSMConnect struct {
 	Name          string
 	Domain        string
-	ApiKey        string
 	MasterToken   string
 	MaximumMemory int
 }
@@ -138,10 +137,7 @@ func InitConfig() (c GeneralConfig, err error) {
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {
-		if os.IsExist(err) {
-			return true
-		}
-		return false
+		return os.IsExist(err)
 	}
 	return true
 }

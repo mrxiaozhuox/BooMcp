@@ -323,7 +323,9 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 				os.Exit(0)
 			}
 
+			// 邮件发送状态
 			if status {
+
 				// 新信息可以插入
 				res, err := collection.InsertOne(context.TODO(), user)
 				BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)

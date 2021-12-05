@@ -29,6 +29,7 @@ type DataBase struct {
 }
 
 type UserInfo struct {
+	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Username string
 	Email    string
 	About    string

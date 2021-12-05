@@ -447,6 +447,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		var Mcsmpwd map[string]string = user.Mcsmpwd
 		for _, conn := range mongo.Config().MCSMConnect {
 
 			if _, ok := user.Mcsmpwd[conn.Name]; ok {
@@ -455,6 +456,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 				continue
 			}
 
+			library.RegisterMcsmUser(library.GetObjectID(user.Id), Mcsmpwd[conn.Name], conn.Domain, conn.MasterToken)
 		}
 
 	}

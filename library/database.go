@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -41,6 +39,7 @@ type UserInfo struct {
 	Regtime  primitive.DateTime
 	Initacc  bool
 	Mcsmpwd  map[string]string
+	Mcsmuid  string
 }
 
 type TokenStruct struct {
@@ -272,25 +271,25 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		},
 	).Decode(&temp)
 
-	// 为用户注册 MCSM 相关账号！
-	var MCSMPwd map[string]string
+	// 生成随机密码（用于MCSM）
+	var mcsmPwd map[string]string = make(map[string]string)
 	for _, value := range mongo.config.MCSMConnect {
-		MCSMPwd[value.Name] = RandValue()
-		http.PostForm(
-			value.Domain+"/api/create_user/?apikey="+value.ApiKey,
-			url.Values{
-				"username": {user.Email},
-				"password": {
-					MCSMPwd[value.Name],
-				},
-			},
-		)
+		mcsmPwd[value.Name] = RandValue(14)
 	}
+
+	// 预先把已经生成好的 `随机密码` 装入数据库，以免后续还需要进行更新
+	// 大概流程为：
+	// 1. 生成随机密码
+	// 2. 插入到数据库
+	// 3. 使用随机密码批量注册 MCSM 账号
+	// MCSM账号将使用用户的唯一 `ObjectID` 即为 MongoDB 唯一ID
+	user.Mcsmpwd = mcsmPwd
 
 	if err != nil {
 
 		// 插入账号待验证信息
 		if mongo.config.EmailConfig.Server != "" && user.Level <= 0 {
+
 			// 不为空则说明配置了邮箱系统信息
 			// 自动检测是否支持
 
@@ -327,6 +326,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			if status {
 				// 新信息可以插入
 				res, err := collection.InsertOne(context.TODO(), user)
+				BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
 				if err != nil {
 					return false, errors.New("数据插入失败")
 				}
@@ -347,7 +347,8 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			if user.Level < 1 {
 				user.Level = 1
 			}
-			_, err := collection.InsertOne(context.TODO(), user)
+			res, err := collection.InsertOne(context.TODO(), user)
+			BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
 			if err != nil {
 				return false, errors.New("数据插入失败")
 			}
@@ -481,8 +482,8 @@ func MakePassword(password string) (string, string) {
 	return salt, hex.EncodeToString(h.Sum(nil))
 }
 
-func RandValue() string {
-	randBytes := make([]byte, 10/2)
+func RandValue(len int) string {
+	randBytes := make([]byte, len/2)
 	_, err := rand.Read(randBytes)
 	if err != nil {
 		return ""

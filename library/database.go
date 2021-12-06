@@ -271,19 +271,19 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 		},
 	).Decode(&temp)
 
-	// 生成随机密码（用于MCSM）
-	var mcsmPwd map[string]string = make(map[string]string)
-	for _, value := range mongo.config.MCSMConnect {
-		mcsmPwd[value.Name] = RandValue(14)
-	}
+	// // 生成随机密码（用于MCSM）
+	// var mcsmPwd map[string]string = make(map[string]string)
+	// for _, value := range mongo.config.MCSMConnect {
+	// 	mcsmPwd[value.Name] = RandValue(14)
+	// }
 
-	// 预先把已经生成好的 `随机密码` 装入数据库，以免后续还需要进行更新
-	// 大概流程为：
-	// 1. 生成随机密码
-	// 2. 插入到数据库
-	// 3. 使用随机密码批量注册 MCSM 账号
-	// MCSM账号将使用用户的唯一 `ObjectID` 即为 MongoDB 唯一ID
-	user.Mcsmpwd = mcsmPwd
+	// // 预先把已经生成好的 `随机密码` 装入数据库，以免后续还需要进行更新
+	// // 大概流程为：
+	// // 1. 生成随机密码
+	// // 2. 插入到数据库
+	// // 3. 使用随机密码批量注册 MCSM 账号
+	// // MCSM账号将使用用户的唯一 `ObjectID` 即为 MongoDB 唯一ID
+	// user.Mcsmpwd = mcsmPwd
 
 	if err != nil {
 
@@ -328,7 +328,7 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 
 				// 新信息可以插入
 				res, err := collection.InsertOne(context.TODO(), user)
-				BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
+				// BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
 				if err != nil {
 					return false, errors.New("数据插入失败")
 				}
@@ -349,8 +349,8 @@ func (mongo DataBase) Register(user UserInfo) (bool, error) {
 			if user.Level < 1 {
 				user.Level = 1
 			}
-			res, err := collection.InsertOne(context.TODO(), user)
-			BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
+			_, err := collection.InsertOne(context.TODO(), user)
+			// BulkRegisterMcsmUser(mongo.config, GetObjectID(res.InsertedID), mcsmPwd)
 			if err != nil {
 				return false, errors.New("数据插入失败")
 			}

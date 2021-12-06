@@ -137,9 +137,13 @@
         mdui.confirm("此操作将自动同步（生成）您的MCSM账号，是否继续？", "MCSM Reload", function() {
             $.ajax({
                 url: "/api/mcsm-load",
-                method: "POST",
+                method: "post",
                 success: function(data) {
                     // ....
+                    console.log(data)
+                },
+                error: function(xhr, state) {
+                    console.log(xhr, state)
                 }
             })
         })

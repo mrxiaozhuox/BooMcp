@@ -33,10 +33,10 @@ func BulkRegisterMcsmUser(config GeneralConfig, oid string, pwds map[string]stri
 
 		// log.Println("用户注册 MCSM 请求：" + value.Domain + "api/create_user/?apikey=" + value.MasterToken)
 
-		log.Println(pwds[value.Name])
-		log.Println(len(pwds[value.Name]))
-		log.Println(oid)
-		log.Println(len(oid))
+		// log.Println(pwds[value.Name])
+		// log.Println(len(pwds[value.Name]))
+		// log.Println(oid)
+		// log.Println(len(oid))
 
 		resp, err := http.PostForm(
 			value.Domain+"api/create_user/?apikey="+value.MasterToken,
@@ -89,8 +89,17 @@ func RegisterMcsmUser(oid string, password string, domain string, token string) 
 		oid = oid[0:12]
 	}
 
+	if domain[len(domain)-1:] != "/" {
+		domain += "/"
+	}
+
+	log.Println(password)
+	log.Println(len(password))
+	log.Println(oid)
+	log.Println(len(oid))
+
 	resp, err := http.PostForm(
-		domain+"/api/create_user/?apikey="+token,
+		domain+"api/create_user/?apikey="+token,
 		url.Values{
 			"username": {oid},
 			"password": {password},
@@ -115,7 +124,7 @@ func RegisterMcsmUser(oid string, password string, domain string, token string) 
 	if bodyStr == "{\"status\":200}" {
 		return nil
 	} else {
-		return errors.New("请求接口错误")
+		return errors.New(bodyStr)
 	}
 
 }

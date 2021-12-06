@@ -447,17 +447,56 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
-		var Mcsmpwd map[string]string = user.Mcsmpwd
+		var Mcsmpwd map[string]string = make(map[string]string)
+		if user.Mcsmpwd != nil {
+			Mcsmpwd = user.Mcsmpwd
+		}
+
+		var count int = 0
 		for _, conn := range mongo.Config().MCSMConnect {
 
+			log.Println(user.Mcsmpwd)
+			log.Println(mongo.Config().MCSMConnect)
 			if _, ok := user.Mcsmpwd[conn.Name]; ok {
 				// 已经存在了，则往后继续查找
 				_ = user.Mcsmpwd[conn.Name]
 				continue
 			}
 
-			library.RegisterMcsmUser(library.GetObjectID(user.Id), Mcsmpwd[conn.Name], conn.Domain, conn.MasterToken)
+			// 重新为没有注册过的账号进行注册
+			temp := library.RandValue(14)
+			err := library.RegisterMcsmUser(library.GetObjectID(user.Id), temp, conn.Domain, conn.MasterToken)
+			if err == nil {
+				count += 1
+				Mcsmpwd[conn.Name] = temp
+			} else {
+				log.Println(err.Error())
+			}
 		}
+
+		err = mongo.UpdateUser(bson.D{
+			{
+				Key: "$set",
+				Value: bson.D{
+					{
+						Key:   "mcsmpwd",
+						Value: Mcsmpwd,
+					},
+				},
+			},
+		}, user.Email)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "信息更新错误",
+			})
+			return
+		}
+
+		// 将成功的次数返回到接口中
+		c.JSON(200, gin.H{
+			"status": count,
+		})
+		return
 
 	}
 }

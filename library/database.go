@@ -186,6 +186,22 @@ func (mongo DataBase) GetTempData(dtype string, checker interface{}, clean bool)
 		return nil, res
 	}
 
+	if clean {
+		_, err := collection.DeleteOne(context.TODO(), bson.D{
+			{
+				Key:   "type",
+				Value: dtype,
+			},
+			{
+				Key:   "checker",
+				Value: checker,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return dmap["data"], nil
 }
 

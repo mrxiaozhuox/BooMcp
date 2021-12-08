@@ -23,6 +23,7 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gopkg.in/gomail.v2"
 	"mrxzx.info/mcp/library"
 
 	"github.com/gin-gonic/gin"
@@ -190,6 +191,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 				/* 页面内容数据 */
 				"ImageHash":          imageHash,
 				"OnlineServerNumber": 0,
+				"MSID":               library.GetObjectID(user.Id)[0:12],
 			})
 			return
 
@@ -342,12 +344,54 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		user, err := mongo.GetUser(email.(string))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "获取信息失败",
+			})
+			return
+		}
+
 		// 编辑用户个人信息
+		config := mongo.Config()
+		if (config.EmailConfig != library.EmailConfig{}) {
+
+			mail := gomail.NewMessage()
+
+			mail.SetHeader("From", mongo.Config().EmailConfig.Username)
+			mail.SetHeader("To", user.Email)
+			mail.SetHeader("Subject", "账号邮箱验证「 "+mongo.Config().SiteName+" 」")
+
+			// 加载相应的数据模板文件
+			templ, err := mongo.Packer().FindString("email/send-token.tmpl")
+			if err != nil {
+				// 这种错误存在就会不断触发，所以干脆直接崩掉程序
+				fmt.Println("Email发送模板不存在。")
+				os.Exit(0)
+			}
+
+			token := library.RandStringBytesRmndr(10)
+
+			templ = strings.ReplaceAll(templ, "{site}", mongo.Config().SiteName)
+			templ = strings.ReplaceAll(templ, "{type}", "edit")
+			templ = strings.ReplaceAll(templ, "{function}", "账号编辑")
+			templ = strings.ReplaceAll(templ, "{token}", token)
+
+			mail.SetBody("text/html", templ)
+
+			_, err = library.SendEmail(config.EmailConfig, mail)
+			if err != nil {
+				panic(err)
+			}
+
+			log.Println("SB")
+		}
 
 		c.JSON(200, gin.H{
 			"status": "成功",
 		})
 		return
+
 	} else if operation == "initacc" {
 
 		// 原始数据（因为这里涉及到数据更新，所以说使用 oriX 表示）
@@ -455,8 +499,6 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		var count int = 0
 		for _, conn := range mongo.Config().MCSMConnect {
 
-			log.Println(user.Mcsmpwd)
-			log.Println(mongo.Config().MCSMConnect)
 			if _, ok := user.Mcsmpwd[conn.Name]; ok {
 				// 已经存在了，则往后继续查找
 				_ = user.Mcsmpwd[conn.Name]
@@ -469,8 +511,6 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			if err == nil {
 				count += 1
 				Mcsmpwd[conn.Name] = temp
-			} else {
-				log.Println(err.Error())
 			}
 		}
 

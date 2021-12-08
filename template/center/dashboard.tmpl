@@ -1,13 +1,12 @@
 {{ define "center/dashboard.tmpl" }} {{ template "block/frame.tmpl" .}}
 
-<div class="mdui-container"> <br />
-
+<div class="mdui-container"> <br /> {{ if .UserInfo.Initacc }}
     <div class="mdui-card">
         <div class="mdui-card-content">
             <strong>检测到您的账号为初始号（即您可以在不验证邮箱的情况下更新一次邮箱、用户名和密码）</strong>
             <a href="/center/initacc?do=reinfo" class="mdui-text-color-theme">前往更新页面</a>
         </div>
-    </div><br/>
+    </div><br/> {{ end }}
 
     <div class="mdui-card">
         <div class="mdui-card-header">
@@ -65,6 +64,10 @@
                                 $("#reg-datetime").text(Y + M + D);
                             </script>
                         </tr>
+                        <tr>
+                            <td>MCSM-ID</td>
+                            <td>{{.MSID}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -108,19 +111,21 @@
 
 <script>
     $("#logout").on("click", function() {
-        $.ajax({
-            url: "/api/logout",
-            method: "post",
-            success: function() {
-                mdui.alert("登出成功，即将跳转到登录页面！");
-                setTimeout(function() {
-                    window.location.reload();
-                }, 820);
-            },
-            error: function() {
-                mdui.alert("账号注销失败！");
-            }
-        });
+        mdui.confirm("您确定要退出您的账号登录吗？", function() {
+            $.ajax({
+                url: "/api/logout",
+                method: "post",
+                success: function() {
+                    mdui.alert("登出成功，即将跳转到登录页面！");
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 820);
+                },
+                error: function() {
+                    mdui.alert("账号注销失败！");
+                }
+            });
+        })
     })
 
     var edit_dialog = new mdui.Dialog("#edit-dialog", {});
@@ -130,7 +135,14 @@
 
     $("#submit-edit").on("click", function() {
         edit_dialog.close()
-        mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！")
+        $.ajax({
+            url: "/api/edit-info",
+            method: "post",
+            success: function(data) {
+                console.log(data)
+                mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！")
+            }
+        })
     })
 
     $("#mcsm-load").on("click", function() {
@@ -139,8 +151,8 @@
                 url: "/api/mcsm-load",
                 method: "post",
                 success: function(data) {
-                    // ....
-                    console.log(data)
+                    var v = JSON.parse(data)
+                    mdui.alert("本次成功同步账号：" + v.status + " 个！", "MCSM Reload");
                 },
                 error: function(xhr, state) {
                     console.log(xhr, state)

@@ -455,6 +455,10 @@ func (mongo DataBase) Config() GeneralConfig {
 	return mongo.config
 }
 
+func (mongo DataBase) Packer() *packr.Box {
+	return mongo.packer
+}
+
 func GetObjectID(result interface{}) string {
 	if oid, ok := result.(primitive.ObjectID); ok {
 		return oid.Hex()

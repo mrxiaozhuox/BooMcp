@@ -384,7 +384,65 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 				panic(err)
 			}
 
-			log.Println("SB")
+			newUsername := c.PostForm("username")
+			newPassword := c.PostForm("password")
+
+			var newValue bson.D
+			if newUsername != "" && newPassword != "" {
+				newValue = bson.D{
+					{
+						Key:   "username",
+						Value: newUsername,
+					},
+					{
+						Key:   "password",
+						Value: newPassword,
+					},
+				}
+			} else if newUsername != "" {
+				newValue = bson.D{
+					{
+						Key:   "username",
+						Value: newUsername,
+					},
+				}
+			} else {
+				newValue = bson.D{
+					{
+						Key:   "password",
+						Value: newPassword,
+					},
+				}
+			}
+
+			_, err = mongo.SetTempData("edit-account", bson.D{
+				{
+					Key:   "operation",
+					Value: "update",
+				},
+				{
+					Key:   "target",
+					Value: "Users",
+				},
+				{
+					Key: "filter",
+					Value: bson.D{
+						{
+							Key:   "email",
+							Value: email,
+						},
+					},
+				},
+				{
+					Key:   "value",
+					Value: newValue,
+				},
+			}, token)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": "数据储存失败",
+				})
+			}
 		}
 
 		c.JSON(200, gin.H{

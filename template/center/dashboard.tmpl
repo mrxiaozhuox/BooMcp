@@ -84,11 +84,11 @@
         <div class="mdui-container">
             <div class="mdui-textfield mdui-textfield-floating-label">
                 <label class="mdui-textfield-label">用户名</label>
-                <input class="mdui-textfield-input" type="text" value="{{.UserInfo.Username}}" />
+                <input class="mdui-textfield-input" id="edit-usr" type="text" value="{{.UserInfo.Username}}" />
             </div>
             <div class="mdui-textfield">
                 <label class="mdui-textfield-label">用户密码</label>
-                <input class="mdui-textfield-input" type="password" placeholder="输入新密码便可更换密码" />
+                <input class="mdui-textfield-input" id="edit-pwd" type="password" placeholder="输入新密码便可更换密码" />
             </div>
 
             <!-- 保存、更改密码按钮 -->
@@ -135,9 +135,17 @@
 
     $("#submit-edit").on("click", function() {
         edit_dialog.close()
+
+        var newUsername = $("#edit-usr").val()
+        var newPassword = $("#edit-pwd").val()
+
         $.ajax({
             url: "/api/edit-info",
             method: "post",
+            data: {
+                username: newUsername,
+                password: newPassword,
+            },
             success: function(data) {
                 console.log(data)
                 mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！")

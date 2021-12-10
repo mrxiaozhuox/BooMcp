@@ -419,10 +419,10 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			if err == nil {
 				dataMap := oldToken.(primitive.D)
 				fmt.Println(dataMap.Map()["token"])
-				_, _ = mongo.GetTempData("edit-account", dataMap.Map()["token"], true)
+				_, _ = mongo.GetTempData("token-check", dataMap.Map()["token"], true)
 			}
 
-			_, err = mongo.SetTempData("edit-account", bson.D{
+			_, err = mongo.SetTempData("token-check", bson.D{
 				{
 					Key:   "operation",
 					Value: "update",
@@ -622,6 +622,41 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		})
 		return
 
+	} else if operation == "token-check" {
+
+		username := session.Get("username")
+		email := session.Get("email")
+
+		if username == nil || email == nil {
+			c.JSON(401, gin.H{
+				"error": "用户未登录",
+			})
+			return
+		}
+
+		token := c.PostForm("token")
+		if token == "" {
+			c.JSON(400, gin.H{
+				"error": "参数不足",
+			})
+			return
+		}
+
+		value, err := mongo.GetTempData("token-check", token, true)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "数据获取错误",
+			})
+		}
+		valueMap := value.(bson.D).Map()
+
+		if valueMap["operation"] == "update" {
+			updateTarget := valueMap["target"]
+			collection := mongo.Object().Collection(updateTarget.(string))
+			collection.UpdateOne()
+		}
+
+		return
 	}
 }
 

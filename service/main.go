@@ -6,6 +6,7 @@
 package service
 
 import (
+	"context"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
@@ -647,15 +648,31 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			c.JSON(500, gin.H{
 				"error": "数据获取错误",
 			})
+			return
+		}
+		if value == nil {
+			c.JSON(400, gin.H{
+				"error": "Token不存在",
+			})
+			return
 		}
 		valueMap := value.(bson.D).Map()
 
 		if valueMap["operation"] == "update" {
 			updateTarget := valueMap["target"]
 			collection := mongo.Object().Collection(updateTarget.(string))
-			collection.UpdateOne()
+			_, err = collection.UpdateOne(context.TODO(), valueMap["filter"].(bson.D), valueMap["value"].(bson.D))
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": "数据更新错误",
+				})
+				return
+			}
 		}
 
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
 		return
 	}
 }

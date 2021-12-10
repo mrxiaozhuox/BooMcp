@@ -475,6 +475,10 @@ func (mongo DataBase) Packer() *packr.Box {
 	return mongo.packer
 }
 
+func (mongo DataBase) Object() *mongo.Database {
+	return mongo.client.Database(DATABASENAME)
+}
+
 func GetObjectID(result interface{}) string {
 	if oid, ok := result.(primitive.ObjectID); ok {
 		return oid.Hex()

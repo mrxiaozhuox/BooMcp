@@ -146,6 +146,45 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		c.Redirect(302, "/center/dashboard")
 	})
 
+	service.GET("/admin/:page", func(c *gin.Context) {
+
+		page := c.Param("page")
+		session := sessions.Default(c)
+
+		// 查询不到用户的登陆信息，跳转到登陆页面
+		if session.Get("username") == nil {
+			c.Redirect(302, "/login")
+			return
+		}
+
+		email := session.Get("email")
+
+		// 获取用户具体信息
+		user, err := db.GetUser(email.(string))
+		if err != nil {
+
+			// 删除用户登录信息
+			session.Delete("username")
+			session.Delete("email")
+			session.Save()
+
+			c.Redirect(302, "/login")
+			return
+		}
+
+		if page == "users" {
+			c.HTML(http.StatusOK, "admin/users.tmpl", gin.H{
+				"Title":         db.Title(),
+				"AcAdmin_Users": true,
+				"Username":      session.Get("username"),
+				"UserInfo":      user,
+				"IsAdmin":       user.Level >= 2,
+			})
+			return
+		}
+
+	})
+
 	service.GET("/center/:page", func(c *gin.Context) {
 
 		page := c.Param("page")
@@ -198,7 +237,7 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 
 		} else if page == "initacc" {
 
-			log.Println(user)
+			// log.Println(user)
 
 			// InitAcc 系统信息
 			c.HTML(http.StatusOK, "center/initacc.tmpl", gin.H{
@@ -420,7 +459,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			oldToken, err := mongo.GetTempData("account-token", email.(string)+".eda", true)
 			if err == nil {
 				dataMap := oldToken.(primitive.D)
-				fmt.Println(dataMap.Map()["token"])
+				// fmt.Println(dataMap.Map()["token"])
 				_, _ = mongo.GetTempData("token-check", dataMap.Map()["token"], true)
 			}
 

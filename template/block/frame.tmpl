@@ -32,28 +32,28 @@
     <!-- 侧边栏 -->
     <div class="mdui-drawer" id="drawer">
         <ul class="mdui-list">
-            <li class="mdui-list-item mdui-ripple {{if .AcDashboard}}mdui-list-item-active{{end}}" onclick="location = 'dashboard'">
+            <li class="mdui-list-item mdui-ripple {{if .AcDashboard}}mdui-list-item-active{{end}}" onclick="location = '/center/dashboard'">
                 <i class="mdui-list-item-icon mdui-icon material-icons">devices</i>
                 <div class="mdui-list-item-content">控制台</div>
             </li>
-            <li class="mdui-list-item mdui-ripple {{if .AcServer}}mdui-list-item-active{{end}}" onclick="location = 'list'">
+            <li class="mdui-list-item mdui-ripple {{if .AcServer}}mdui-list-item-active{{end}}" onclick="location = '/center/list'">
                 <i class="mdui-list-item-icon mdui-icon material-icons">computer</i>
                 <div class="mdui-list-item-content">服务器</div>
             </li>
-            <li class="mdui-list-item mdui-ripple {{if .AcDiscuss}}mdui-list-item-active{{end}}" onclick="location = 'discuss'">
+            <li class="mdui-list-item mdui-ripple {{if .AcDiscuss}}mdui-list-item-active{{end}}" onclick="location = '/center/discuss'">
                 <i class="mdui-list-item-icon mdui-icon material-icons">send</i>
                 <div class="mdui-list-item-content">讨论区</div>
             </li>
             <li class="mdui-subheader">官方服务</li>
-            <li class="mdui-list-item mdui-ripple {{if .AcReport}}mdui-list-item-active{{end}}" onclick="location = 'report'">
+            <li class="mdui-list-item mdui-ripple {{if .AcReport}}mdui-list-item-active{{end}}" onclick="location = '/center/report'">
                 <i class="mdui-list-item-icon mdui-icon material-icons">error</i>
                 <div class="mdui-list-item-content">问题反馈</div>
             </li>
             {{if .IsAdmin}}
             <li class="mdui-subheader">后台管理</li>
-            <li class="mdui-list-item mdui-ripple {{if .AcReport}}mdui-list-item-active{{end}}" onclick="location = '/admin/general'">
+            <li class="mdui-list-item mdui-ripple {{if .AcAdmin_Users}}mdui-list-item-active{{end}}" onclick="location = '/center/admin/users'">
                 <i class="mdui-list-item-icon mdui-icon material-icons">error</i>
-                <div class="mdui-list-item-content">基本设置</div>
+                <div class="mdui-list-item-content">用户管理</div>
             </li>
             {{end}}
         </ul>

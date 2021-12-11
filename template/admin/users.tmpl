@@ -1,0 +1,34 @@
+{{ define "admin/users.tmpl" }} {{ template "block/frame.tmpl" .}}
+<div class="mdui-container"> <br />
+
+    <div class="mdui-card">
+        <div class="mdui-card-content">用户管理：点击用户 <strong>MCSM-ID</strong> 编辑单个用户，多选可进行批量操作。</div>
+    </div><br/>
+
+    <div class="mdui-table-fluid">
+        <table class="mdui-table mdui-table-selectable">
+            <thead>
+                <tr>
+                    <th>MCSM-ID</th>
+                    <th class="mdui-table-col-numeric">用户名称</th>
+                    <th class="mdui-table-col-numeric">绑定邮箱</th>
+                    <th class="mdui-table-col-numeric">注册时间</th>
+                    <th class="mdui-table-col-numeric">账号状态</th>
+                    <th class="mdui-table-col-numeric">InitAcc</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="">61b41ade1f6c</a></td>
+                    <td>刘禹琨</td>
+                    <td>mrxzx@qq.com</td>
+                    <td>2021年12月11日</td>
+                    <td>管理员</td>
+                    <td>未开启</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{{ template "block/end.tmpl" .}} {{ end }}

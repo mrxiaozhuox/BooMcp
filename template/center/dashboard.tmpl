@@ -139,33 +139,42 @@
         var newUsername = $("#edit-usr").val()
         var newPassword = $("#edit-pwd").val()
 
-        mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！", function(text) {
-            $.ajax({
-                url: "/api/token-check",
-                method: "post",
-                data: {
-                    token: text
-                },
-                success: function(data) {
-                    alert(JSON.stringify(data))
-                }
-            })
-        })
-
-        // $.ajax({
-        //     url: "/api/edit-info",
-        //     method: "post",
-        //     data: {
-        //         username: newUsername,
-        //         password: newPassword,
-        //     },
-        //     success: function(data) {
-        //         console.log(data)
-        //         mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！", function(text) {
-        //             alert(text)
-        //         })
-        //     }
+        // mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！", function(text) {
+        //     $.ajax({
+        //         url: "/api/token-check",
+        //         method: "post",
+        //         data: {
+        //             token: text
+        //         },
+        //         success: function(data) {
+        //             mdui.alert(JSON.stringify(data))
+        //         }
+        //     })
         // })
+
+        $.ajax({
+            url: "/api/edit-info",
+            method: "post",
+            data: {
+                username: newUsername,
+                password: newPassword,
+            },
+            success: function(data) {
+                console.log(data)
+                mdui.prompt("请输入邮箱验证码：验证码将发送到您的邮箱中！", function(text) {
+                    $.ajax({
+                        url: "/api/token-check",
+                        method: "post",
+                        data: {
+                            token: text
+                        },
+                        success: function(data) {
+                            mdui.alert(JSON.stringify(data))
+                        }
+                    })
+                })
+            }
+        })
     })
 
     $("#mcsm-load").on("click", function() {

@@ -85,10 +85,7 @@ func (mongo DataBase) InitDataBase() error {
 	salt := fmt.Sprintf("%x", randBytes)
 
 	// 默认密码为 mrxzx.info
-	h := md5.New()
-	h.Write([]byte("mrxzx.info"))
-
-	password := hex.EncodeToString(h.Sum(nil))
+	password := MetaPassword("mrxzx.info", salt)
 
 	// 初始化系统第一个管理员用户
 	// InitAcc 则代表这个账号允许在不经过邮箱验证的情况下更新一次个人信息（可以换邮箱）
@@ -488,7 +485,7 @@ func GetObjectID(result interface{}) string {
 
 func MetaPassword(password string, salt string) string {
 	h := md5.New()
-	h.Write([]byte(password))
+	h.Write([]byte(password + "#" + salt))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -502,10 +499,7 @@ func MakePassword(password string) (string, string) {
 
 	salt := fmt.Sprintf("%x", randBytes)
 
-	h := md5.New()
-	h.Write([]byte(password))
-
-	return salt, hex.EncodeToString(h.Sum(nil))
+	return salt, MetaPassword(password, salt)
 }
 
 func RandValue(len int) string {

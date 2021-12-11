@@ -299,6 +299,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 
 		user, err := mongo.Login(email, password)
 		if err != nil {
+			// fmt.Println(err)
 			c.JSON(400, gin.H{
 				"error": "用户登录失败",
 			})
@@ -365,7 +366,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 				},
 				{
 					Key:   "password",
-					Value: newPassword,
+					Value: library.MetaPassword(newPassword, user.Salt),
 				},
 			}
 		} else if newUsername != "" {
@@ -442,8 +443,13 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 					},
 				},
 				{
-					Key:   "value",
-					Value: newValue,
+					Key: "value",
+					Value: bson.D{
+						{
+							Key:   "$set",
+							Value: newValue,
+						},
+					},
 				},
 			}, token)
 			if err != nil {

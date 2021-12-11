@@ -51,6 +51,29 @@
                 {{end}}
             </tbody>
         </table>
+    </div><br/>
+
+    <div style="text-align: center;">
+        <div class="mdui-btn-group">
+            <button type="button" class="mdui-btn" id="before-page" {{if .MinPage}}disabled{{end}}>
+                <i class="mdui-icon material-icons">navigate_before</i>
+            </button>
+            <button type="button" class="mdui-btn mdui-btn-active" disabled>
+              {{.NowPage}}页
+            </button>
+            <button type="button" class="mdui-btn" id="next-page">
+                <i class="mdui-icon material-icons">navigate_next</i>
+            </button>
+        </div>
+        <script>
+            var nowPage = parseInt("{{.NowPage}}");
+            $("#before-page").on("click", function() {
+                location = "?userPage=" + (nowPage - 1);
+            })
+            $("#next-page").on("click", function() {
+                location = "?userPage=" + (nowPage + 1);
+            })
+        </script>
     </div>
 
 </div>

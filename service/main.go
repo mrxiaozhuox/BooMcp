@@ -173,16 +173,16 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 		}
 
 		userPage := c.Query("userPage")
-		var userPageNum = 0
+		var userPageNum = 1
 		if userPage != "" {
 			userPageNum, err = strconv.Atoi(userPage)
 			if err != nil {
-				userPageNum = 0
+				userPageNum = 1
 			}
 		}
 
 		var userList []library.UserInfo
-		err = db.Paging("Users", 15, userPageNum, &userList)
+		err = db.Paging("Users", 15, userPageNum-1, &userList)
 		if err != nil {
 			panic(err)
 		}
@@ -202,6 +202,8 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 				"IsAdmin":       user.Level >= 2,
 
 				"UserList": userList,
+				"NowPage":  userPageNum,
+				"MinPage":  userPageNum == 1,
 			})
 			return
 		}

@@ -676,6 +676,11 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			}
 		}
 
+		// 清除登录状态
+		session.Delete("username")
+		session.Delete("email")
+		_ = session.Save()
+
 		c.JSON(200, gin.H{
 			"status": "成功",
 		})

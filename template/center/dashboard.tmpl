@@ -169,7 +169,15 @@
                             token: text
                         },
                         success: function(data) {
-                            mdui.alert(JSON.stringify(data))
+                            var res = JSON.parse(data)
+                            if (res["status"] == "成功") {
+                                mdui.alert("数据更新成功！稍后将登出账号，请重新登录！");
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1200)
+                            } else {
+                                mdui.alert("请求失败：" + res["error"]);
+                            }
                         }
                     })
                 })

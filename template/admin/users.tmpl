@@ -18,14 +18,37 @@
                 </tr>
             </thead>
             <tbody>
+                {{range .UserList}}
                 <tr>
-                    <td><a href="">61b41ade1f6c</a></td>
-                    <td>刘禹琨</td>
-                    <td>mrxzx@qq.com</td>
-                    <td>2021年12月11日</td>
-                    <td>管理员</td>
-                    <td>未开启</td>
+                    <td><a href="">{{.Mcsmid}}</a></td>
+                    <td>{{.Username}}</td>
+                    <td>{{.Email}}</td>
+                    <td id="{{.Id}}-regdate"></td>
+                    <script>
+                        var meta = parseInt("{{.Regtime}}");
+                        var date = new Date(meta);
+
+                        Y = date.getFullYear() + '年';
+                        M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '月';
+                        D = date.getDate() + '日';
+                        $("#{{.Id}}-regdate").text(Y + M + D);
+                    </script>
+                    <td id="{{.Id}}-status"></td>
+                    <script>
+                        var meta = "{{.Level}}"
+                        var data = "未激活"
+                        if (meta == "0") {
+                            data = "未激活"
+                        } else if (meta == "1") {
+                            data = "普通用户"
+                        } else if (meta == "2") {
+                            data = "管理员"
+                        }
+                        $("#{{.Id}}-status").text(data);
+                    </script>
+                    <td>{{if .Initacc}}已激活{{else}}未激活{{end}}</td>
                 </tr>
+                {{end}}
             </tbody>
         </table>
     </div>

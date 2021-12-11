@@ -172,6 +172,27 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 			return
 		}
 
+		userPage := c.Query("userPage")
+		var userPageNum = 0
+		if userPage != "" {
+			userPageNum, err = strconv.Atoi(userPage)
+			if err != nil {
+				userPageNum = 0
+			}
+		}
+
+		var userList []library.UserInfo
+		err = db.Paging("Users", 15, userPageNum, &userList)
+		if err != nil {
+			panic(err)
+		}
+
+		var index = 0
+		for _, val := range userList {
+			userList[index].Mcsmid = library.GetObjectID(val.Id)[0:12]
+			index += 1
+		}
+
 		if page == "users" {
 			c.HTML(http.StatusOK, "admin/users.tmpl", gin.H{
 				"Title":         db.Title(),
@@ -179,6 +200,8 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 				"Username":      session.Get("username"),
 				"UserInfo":      user,
 				"IsAdmin":       user.Level >= 2,
+
+				"UserList": userList,
 			})
 			return
 		}

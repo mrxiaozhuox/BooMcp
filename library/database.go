@@ -40,6 +40,7 @@ type UserInfo struct {
 	Regtime  primitive.DateTime
 	Initacc  bool
 	Mcsmpwd  map[string]string
+	Mcsmid   string
 }
 
 type TokenStruct struct {
@@ -457,6 +458,28 @@ func (mongo DataBase) AccountLevel(to int, id string) error {
 		return errors.New("更新状态失败")
 	}
 
+	return nil
+}
+
+func (mongo DataBase) Paging(collectName string, onePage int, nowPage int, res interface{}) error {
+
+	skipTo := onePage * nowPage
+
+	db := mongo.client.Database(DATABASENAME)
+	collection := db.Collection(collectName)
+
+	cur, err := collection.Find(
+		context.TODO(),
+		bson.D{},
+		options.Find().SetLimit(int64(onePage)),
+		options.Find().SetSkip(int64(skipTo)),
+	)
+	if err != nil {
+		return err
+	}
+	defer cur.Close(context.TODO())
+
+	cur.All(context.TODO(), res)
 	return nil
 }
 

@@ -797,6 +797,27 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		})
 		return
 
+	} else if operation == "user-general-edit" {
+		// pass
+		email := session.Get("email")
+
+		user, err := mongo.GetUser(email.(string))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "用户信息错误",
+			})
+			return
+		}
+
+		if user.Level != 2 {
+			c.JSON(401, gin.H{
+				"error": "账号无权限",
+			})
+			return
+		}
+
+	} else if operation == "user-update-password" {
+		// pass
 	}
 }
 

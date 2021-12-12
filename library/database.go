@@ -35,7 +35,6 @@ type UserInfo struct {
 	About    string
 	Password string
 	Salt     string
-	Status   int
 	Level    int
 	Regtime  primitive.DateTime
 	Initacc  bool
@@ -96,7 +95,6 @@ func (mongo DataBase) InitDataBase() error {
 		Salt:     salt,
 		Password: password,
 		About:    "我就是最无敌的存在！",
-		Status:   0,
 		Level:    2,
 		Initacc:  true,
 		Regtime:  primitive.NewDateTimeFromTime(time.Now()),

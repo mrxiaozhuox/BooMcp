@@ -20,10 +20,10 @@
             <tbody>
                 {{range .UserList}}
                 <tr>
-                    <td><a href="">{{.Mcsmid}}</a></td>
+                    <td><a href="javascript:;" class="edit-user" email="{{.Email}}" oid="{{.Mcsmid}}">{{.Mcsmid}}</a></td>
                     <td>{{.Username}}</td>
                     <td>{{.Email}}</td>
-                    <td id="{{.Id}}-regdate"></td>
+                    <td id="{{.Mcsmid}}-regdate"></td>
                     <script>
                         var meta = parseInt("{{.Regtime}}");
                         var date = new Date(meta);
@@ -31,9 +31,9 @@
                         Y = date.getFullYear() + '年';
                         M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '月';
                         D = date.getDate() + '日';
-                        $("#{{.Id}}-regdate").text(Y + M + D);
+                        $("#{{.Mcsmid}}-regdate").text(Y + M + D);
                     </script>
-                    <td id="{{.Id}}-status"></td>
+                    <td id="{{.Mcsmid}}-status"></td>
                     <script>
                         var meta = "{{.Level}}"
                         var data = "未激活"
@@ -44,7 +44,7 @@
                         } else if (meta == "2") {
                             data = "管理员"
                         }
-                        $("#{{.Id}}-status").text(data);
+                        $("#{{.Mcsmid}}-status").text(data);
                     </script>
                     <td>{{if .Initacc}}已激活{{else}}未激活{{end}}</td>
                 </tr>
@@ -59,7 +59,7 @@
                 <i class="mdui-icon material-icons">navigate_before</i>
             </button>
             <button type="button" class="mdui-btn mdui-btn-active" disabled>
-              {{.NowPage}}页
+              第{{.NowPage}}页
             </button>
             <button type="button" class="mdui-btn" id="next-page">
                 <i class="mdui-icon material-icons">navigate_next</i>
@@ -77,4 +77,90 @@
     </div>
 
 </div>
+
+<div class="mdui-dialog" id="edit-dialog">
+    <div class="mdui-tab mdui-tab-full-width" id="edit-tab">
+        <a href="#edit-general" class="mdui-ripple">基本信息</a>
+        <a href="#example4-tab2" class="mdui-ripple">其他操作</a>
+    </div>
+    <div id="edit-general" class="mdui-p-a-2">
+        <p>您当前正在编辑的用户为：<span id="editing-sign">NaN</span></p>
+        <p>
+            <form action="">
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">用户名称</label>
+                    <input class="mdui-textfield-input" type="text" id="editing-name" />
+                </div>
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">用户邮箱</label>
+                    <input class="mdui-textfield-input" type="email" id="editing-email" />
+                </div>
+                <div class="mdui-textfield">
+                    <label class="mdui-textfield-label">个人介绍</label>
+                    <input class="mdui-textfield-input" type="text" id="editing-about" />
+                </div><br/>
+                <button type="submit" class="mdui-btn mdui-color-theme-accent mdui-ripple">提交更新</button>
+            </form>
+        </p>
+    </div>
+    <div id="example4-tab2" class="mdui-p-a-2">
+        <p>
+            <div class="mdui-textfield">
+                <input class="mdui-textfield-input" type="text" placeholder="用户密码请在此处输入以更新" />
+            </div>
+            <button type="button" class="mdui-btn mdui-color-theme-accent mdui-ripple" id="editing-uppwd">更新密码</button>
+            <button type="button" class="mdui-btn mdui-color-theme-accent mdui-ripple" id="editing-initacc">NaN</button>
+            <button type="button" class="mdui-btn mdui-color-theme-accent mdui-ripple" id="editing-level">用户提权</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    var tab = new mdui.Tab('#edit-tab');
+    document.getElementById('edit-dialog').addEventListener('open.mdui.dialog', function() {
+        tab.handleUpdate();
+    });
+
+    $(".edit-user").on("click", function(obj) {
+
+        var ele = obj.target;
+        var email = ele.getAttribute("email");
+        var oid = ele.getAttribute("oid");
+
+        var dialog = new mdui.Dialog("#edit-dialog", {});
+
+        $.ajax({
+            url: "/api/user-info",
+            method: "post",
+            data: {
+                email: email
+            },
+            success: function(data) {
+
+                var user_info = JSON.parse(data)["data"];
+
+                $("#editing-sign").text(email);
+                $("#editing-name").val(user_info.username);
+                $("#editing-email").val(user_info.email);
+                $("#editing-about").val(user_info.about);
+
+                if (user_info.initacc) {
+                    $("#editing-initacc").text("关闭 InitAcc 权限");
+                } else {
+                    $("#editing-initacc").text("开启 InitAcc 权限");
+                }
+
+                $("#editing-uppwd").on("click", function() {
+
+                })
+
+                dialog.open();
+            },
+            error: function() {
+                mdui.alert("用户数据请求失败！");
+            }
+        });
+    })
+</script>
+
 {{ template "block/end.tmpl" .}} {{ end }}

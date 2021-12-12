@@ -328,7 +328,6 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			Salt:     salt,
 			Email:    email,
 			About:    "Hello World!",
-			Status:   0,
 			Level:    0,
 			Regtime:  primitive.NewDateTimeFromTime(time.Now()),
 			Initacc:  false,
@@ -638,7 +637,6 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		email := session.Get("email")
 
 		user, err := mongo.GetUser(email.(string))
-
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": "用户信息错误",
@@ -749,6 +747,56 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			"status": "成功",
 		})
 		return
+	} else if operation == "user-info" {
+
+		// 这个接口只有管理员能调用
+		// username := session.Get("username")
+		email := session.Get("email")
+
+		user, err := mongo.GetUser(email.(string))
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "用户信息错误",
+			})
+			return
+		}
+
+		if user.Level != 2 {
+			c.JSON(401, gin.H{
+				"error": "账号无权限",
+			})
+			return
+		}
+
+		targetEmail := c.PostForm("email")
+		if targetEmail == "" {
+			c.JSON(400, gin.H{
+				"error": "参数不足",
+			})
+			return
+		}
+
+		targetUser, err := mongo.GetUser(targetEmail)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "数据不存在",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status": "成功",
+			"data": gin.H{
+				"username": targetUser.Username,
+				"email":    targetUser.Email,
+				"regtime":  targetUser.Regtime,
+				"initacc":  targetUser.Initacc,
+				"level":    targetUser.Level,
+				"about":    targetUser.About,
+			},
+		})
+		return
+
 	}
 }
 

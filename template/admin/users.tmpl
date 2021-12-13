@@ -132,7 +132,7 @@
         var dialog = new mdui.Dialog("#edit-dialog", {});
 
         $.ajax({
-            url: "/api/user-info",
+            url: "/api/admin@user-info",
             method: "post",
             data: {
                 email: email
@@ -165,7 +165,18 @@
                 $("#editing-uppwd").on("click", function() {
                     var new_pwd = $("#editing-npwd").val();
                     if (new_pwd != "") {
-                        // 用户实实在在输入了任何有效字符串密码才激活哦。
+                        // 用户实实在在输入了任何有效字符串密码才激活
+                        $.ajax({
+                            url: "/api/admin@user-update-password",
+                            method: "post",
+                            data: {
+                                email: email,
+                                password: new_pwd
+                            },
+                            success: function(data) {
+                                alert("用户密码更新成功！");
+                            }
+                        })
                     }
                 })
 

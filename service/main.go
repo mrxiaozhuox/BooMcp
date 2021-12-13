@@ -241,6 +241,16 @@ func InitServer(service *gin.Engine, db *library.DataBase, config library.Genera
 			c.Redirect(302, "/login")
 			return
 		}
+		// 检查用户名称是否相同
+		if user.Username != session.Get("username").(string) {
+			// 删除用户登录信息
+			session.Delete("username")
+			session.Delete("email")
+			session.Save()
+
+			c.Redirect(302, "/login")
+			return
+		}
 
 		if page == "dashboard" {
 
@@ -747,7 +757,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			"status": "成功",
 		})
 		return
-	} else if operation == "user-info" {
+	} else if operation == "admin@user-info" {
 
 		// 这个接口只有管理员能调用
 		// username := session.Get("username")
@@ -797,7 +807,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		})
 		return
 
-	} else if operation == "user-general-edit" {
+	} else if operation == "admin@user-general-edit" {
 
 		email := session.Get("email")
 
@@ -861,7 +871,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		})
 		return
 
-	} else if operation == "user-update-password" {
+	} else if operation == "admin@user-update-password" {
 
 		email := session.Get("email")
 

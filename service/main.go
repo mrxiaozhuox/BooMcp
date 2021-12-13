@@ -798,7 +798,7 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 		return
 
 	} else if operation == "user-general-edit" {
-		// pass
+
 		email := session.Get("email")
 
 		user, err := mongo.GetUser(email.(string))
@@ -816,8 +816,105 @@ func apiService(c *gin.Context, mongo *library.DataBase) {
 			return
 		}
 
+		oriEmail := c.PostForm("email")
+		newEmail := c.PostForm("newEmail")
+		newUsername := c.PostForm("newUsername")
+		newAbout := c.PostForm("newAbout")
+
+		newValue := bson.D{
+			{
+				Key:   "username",
+				Value: newUsername,
+			},
+			{
+				Key:   "about",
+				Value: newAbout,
+			},
+			{
+				Key:   "email",
+				Value: newEmail,
+			},
+		}
+
+		collection := mongo.Object().Collection("Users")
+
+		_, err = collection.UpdateOne(context.TODO(), bson.D{
+			{
+				Key:   "email",
+				Value: oriEmail,
+			},
+		}, bson.D{
+			{
+				Key:   "$set",
+				Value: newValue,
+			},
+		})
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "数据更新失败",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
+		return
+
 	} else if operation == "user-update-password" {
-		// pass
+
+		email := session.Get("email")
+
+		user, err := mongo.GetUser(email.(string))
+		if err != nil {
+			findErr(c)
+			return
+		}
+
+		if user.Level != 2 {
+			c.JSON(401, gin.H{
+				"error": "账号无权限",
+			})
+			return
+		}
+
+		targetEmail := c.PostForm("email")
+		newPassword := c.PostForm("password")
+		targetUser, err := mongo.GetUser(targetEmail)
+		if err != nil {
+			findErr(c)
+			return
+		}
+
+		newMetaPassword := library.MetaPassword(newPassword, targetUser.Salt)
+
+		_, err = mongo.Object().Collection("Users").UpdateOne(context.TODO(), bson.D{
+			{
+				Key:   "email",
+				Value: targetEmail,
+			},
+		}, bson.D{
+			{
+				Key: "$set",
+				Value: bson.D{
+					{
+						Key:   "password",
+						Value: newMetaPassword,
+					},
+				},
+			},
+		})
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "数据更新失败",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status": "成功",
+		})
+		return
 	}
 }
 
@@ -844,4 +941,10 @@ func loadTemplate(box *packr.Box) (*template.Template, error) {
 		fmt.Println("Loading template: ", path)
 	}
 	return t, nil
+}
+
+func findErr(context *gin.Context) {
+	context.JSON(500, gin.H{
+		"error": "用户信息错误",
+	})
 }
